@@ -1,0 +1,95 @@
+#!/bin/bash
+PCM(){ PROMPT ;clear; PMENU;}
+
+PROMPT()
+{ printf "${CE}\e[18;$(( ($(tput cols)-46 )/2+1))f<< PRESSIONE QUALQUER TECLA  PARA CONTINUAR >>${FC}";
+read -e -n1 PRMPT ;
+local PRMPT ;
+}
+
+PMENU() 
+{
+GERACOR;
+COLS;
+}
+
+
+MENU() {
+	tput clear
+	printf "${CE}\e[2;${POS2}f----------------------------------------"
+	printf "\e[3;${POS1}f------------------ MENU ------------------"
+	printf "\e[4;${POS}f---\e[4;${POS3}f---"
+	printf "\e[5;${POS}f---${CSM}    [1] Cadastrar       [2] Listar    ${CE}---"
+	printf "\e[6;${POS}f---${CSM}    [3] Remover         [4] Alterar   ${CE}---"
+	printf "\e[7;${POS}f---${CSM}    [5] Opção 5         [6] Opção 6   ${CE}---"
+	printf "\e[8;${POS}f---${CSM}    [7] Cor Menu        [8] Exit      ${CE}---"
+	printf "\e[9;${POS}f---\e[9;${POS3}f---"
+	printf "${CE}\e[10;${POS1}f------------------------------------------"
+	printf "\e[11;${POS2}f----------------------------------------\n\n"$FC""
+	read -p " OPÇãO: " -n1 OPC
+
+	case "$OPC" in
+	1) FUNCAO_01 ;;
+	2) FUNCAO_02 ;;
+	3) FUNCAO_03 ;;
+	4) FUNCAO_04 ;;
+	5) echo -e "\n Criar FUNÇãO_05\n"; PCM ;;
+	6) echo -e "\n Criar FUNÇãO_06\n"; PCM ;;
+	7) echo -e "\n${CE} Centraliza e altera a cor do MENU${FC}"; sleep 1 ; PMENU ;;
+	8) echo -e "\n\n Saindo...\n";sleep 0.5; exit ;;
+	*) MSGM ; PMENU ;;
+	esac
+}
+
+
+COLS() {
+	COLS=$(tput cols)
+	POS=$(((COLS-44)/2+1))
+	POS1=$((POS+1))
+	POS2=$((POS+2))
+	POS3=$((POS2+39))
+	(($COLS>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PCM ; }
+}
+
+GERACOR() {
+	local cnt=$((1+RANDOM%31));local atb=$((RANDOM%2));
+	CSM="\e["$atb";38;5;"$cnt"m"
+}
+
+MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1.25 ; }
+
+FUNCAO_01() {
+	tput clear;
+	printf "\n";printf "Adicionar usuário: \n";read $addusuario;useradd $addusuario;echo "senha do usuario $addusuario: ";passwd $addusuario;sleep 2;
+
+#	echo -e "${CSM}\n :\n COLOQUE AQUI OS COMANDOS QUE DESEJA EXECUTAR.\n ESSAS MENSAGENS SÃO SOMENTE PARA TESTES . . . :) ${FC}"
+
+	PCM
+}
+
+FUNCAO_02() {
+	echo "Deletar usuário: "; read delusuario; deluser $delusuario; sleep 5;
+
+	#echo -e "${CSM}\n ESTÁ é a FUNÇãO ${OPC}:\n COLOQUE AQUI OS COMANDOS QUE DESEJA EXECUTAR.\n ESSAS MENSAGENS SÃO SOMENTE PARA TESTES . . . :) ${FC}"
+
+	PCM
+}
+
+FUNCAO_03() {
+	echo "Lista de usuarios:"; cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$;
+	sleep 2  
+
+	#echo -e "${CSM}\n ESTÁ é a FUNÇãO ${OPC}:\n COLOQUE AQUI OS COMANDOS QUE DESEJA EXECUTAR.\n ESSAS MENSAGENS SÃO SOMENTE PARA TESTES . . . :) ${FC}"
+
+	PCM
+}
+
+FUNCAO_04() {
+echo "Nome do usuario:";read $senha_usuario;echo "senha do usuario $senha_usuario:";passwd $senha_usuario;sleep 5;
+
+	#echo -e "${CSM}\n ESTÁ é a FUNÇãO ${OPC}:\n COLOQUE AQUI OS COMANDOS QUE DESEJA EXECUTAR.\n ESSAS MENSAGENS SÃO SOMENTE PARA TESTES . . . :) ${FC}"
+
+	PCM
+}
+
+PMENU
