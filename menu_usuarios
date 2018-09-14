@@ -66,14 +66,14 @@ FUNCAO_01() {
 }
 
 FUNCAO_02() {
-	echo "Deletar usuário: "; read delusuario; deluser $delusuario; sleep 5;
+	echo "Lista de usuarios:"; cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$;
+	sleep 2
 
 	PCM
 }
 
 FUNCAO_03() {
-	echo "Lista de usuarios:"; cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$;
-	sleep 2
+	echo "Deletar usuário: "; read delusuario; deluser $delusuario; sleep 5;
 
 	PCM
 }
