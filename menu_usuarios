@@ -62,32 +62,24 @@ FUNCAO_01() {
 	tput clear;
 	printf "\n";printf "Adicionar usuário: \n";read $addusuario;useradd $addusuario;echo "senha do usuario $addusuario: ";passwd $addusuario;sleep 2;
 
-#	echo -e "${CSM}\n :\n COLOQUE AQUI OS COMANDOS QUE DESEJA EXECUTAR.\n ESSAS MENSAGENS SÃO SOMENTE PARA TESTES . . . :) ${FC}"
-
 	PCM
 }
 
 FUNCAO_02() {
 	echo "Deletar usuário: "; read delusuario; deluser $delusuario; sleep 5;
 
-	#echo -e "${CSM}\n ESTÁ é a FUNÇãO ${OPC}:\n COLOQUE AQUI OS COMANDOS QUE DESEJA EXECUTAR.\n ESSAS MENSAGENS SÃO SOMENTE PARA TESTES . . . :) ${FC}"
-
 	PCM
 }
 
 FUNCAO_03() {
 	echo "Lista de usuarios:"; cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$;
-	sleep 2  
-
-	#echo -e "${CSM}\n ESTÁ é a FUNÇãO ${OPC}:\n COLOQUE AQUI OS COMANDOS QUE DESEJA EXECUTAR.\n ESSAS MENSAGENS SÃO SOMENTE PARA TESTES . . . :) ${FC}"
+	sleep 2
 
 	PCM
 }
 
 FUNCAO_04() {
 echo "Nome do usuario:";read $senha_usuario;echo "senha do usuario $senha_usuario:";passwd $senha_usuario;sleep 5;
-
-	#echo -e "${CSM}\n ESTÁ é a FUNÇãO ${OPC}:\n COLOQUE AQUI OS COMANDOS QUE DESEJA EXECUTAR.\n ESSAS MENSAGENS SÃO SOMENTE PARA TESTES . . . :) ${FC}"
 
 	PCM
 }
