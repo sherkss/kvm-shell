@@ -9,7 +9,7 @@ local PRMPT ;
 
 PMENU() 
 {
-GERACOR;
+#GERACOR;
 COLS;
 }
 
@@ -60,26 +60,50 @@ MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1.25 ; }
 
 FUNCAO_01() {
 	tput clear;
-	printf "\n";printf "Adicionar usuário: \n";read $addusuario;useradd $addusuario;echo "senha do usuario $addusuario: ";passwd $addusuario;sleep 2;
+	printf "\n";printf "Adicionar usuário: \n";
+	read $addusuario;
+	if (addusuario =! ''); then
 
+		useradd $addusuario;
+		echo "senha do usuario $addusuario: ";
+		read $addusuario_pass;
+
+		if ($addusuario_pass); then	
+		passwd $addusuario_pass;
+		else
+		return 68;
+		fi
+	else
+	PCM
+	fi
+
+	sleep 2;
 	PCM
 }
 
 FUNCAO_02() {
-	echo "Lista de usuarios:"; cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$;
-	sleep 2
+	echo "Lista de usuarios:";
+	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$;
+	sleep 2;
 
 	PCM
 }
 
 FUNCAO_03() {
-	echo "Deletar usuário: "; read delusuario; deluser $delusuario; sleep 5;
+	echo "Deletar usuário: ";
+	read delusuario;
+	deluser $delusuario;
+	sleep 5;
 
 	PCM
 }
 
 FUNCAO_04() {
-echo "Nome do usuario:";read $senha_usuario;echo "senha do usuario $senha_usuario:";passwd $senha_usuario;sleep 5;
+	echo "Nome do usuario:";
+	read $senha_usuario;
+	echo "senha do usuario $senha_usuario:";
+	passwd $senha_usuario;
+	sleep 5;
 
 	PCM
 }
