@@ -62,13 +62,14 @@ FUNCAO_01() {
 	tput clear;
 	printf "\n";printf "Adicionar usuário: \n";
 	read $addusuario;
-	if (addusuario =! ''); then
+	if ("$addusuario" != ''); then
 
 		useradd $addusuario;
 		echo "senha do usuario $addusuario: ";
+		
 		read $addusuario_pass;
 
-		if ($addusuario_pass); then	
+		if ("$addusuario_pass" != ''); then	
 		passwd $addusuario_pass;
 		else
 		return 68;
@@ -91,19 +92,30 @@ FUNCAO_02() {
 
 FUNCAO_03() {
 	echo "Deletar usuário: ";
-	read delusuario;
+	read $delusuario;
+	
+	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${delusuario};
+	if ( "$?" != 1)
+	then
 	deluser $delusuario;
-	sleep 5;
-
+	fi
+	
 	PCM
 }
 
 FUNCAO_04() {
 	echo "Nome do usuario:";
 	read $senha_usuario;
+	
+	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${senha_usuario};
+	if ( "$?" != 1)
+	then
+	
 	echo "senha do usuario $senha_usuario:";
 	passwd $senha_usuario;
-	sleep 5;
+	fi
+	
+	sleep 1;
 
 	PCM
 }
