@@ -1,210 +1,242 @@
-## kvm-install-vm
+# LibVirtKvm-Scripts
 
-A bash wrapper around virt-install to build virtual machines on a local KVM
-hypervisor.  You can run it as a normal user which will use `qemu:///session` to
-connect locally to your KVM domains.
+**Status**
+* [![Build Status](https://travis-ci.org/dguerri/LibVirtKvm-scripts.svg?branch=master)](https://travis-ci.org/dguerri/LibVirtKvm-scripts) on master branch
+* [![Build Status](https://travis-ci.org/dguerri/LibVirtKvm-scripts.svg?branch=development)](https://travis-ci.org/dguerri/LibVirtKvm-scripts) on development branch
 
-Tested on the latest Fedora.
+## fi-backup - Online Forward Incremental Backup for Libvirt/KVM VMs
 
-### Prerequisites
+fi-backup can be used to make offline or online _forward incremental_ backups of libvirt/KVM virtual machines.
+It works on VMs with multiple disks but only if disk images are in qcow2 format.
+It also allows consolidation of backups previously taken. Both backup and consolidation can be performed live, on running domains.
 
-You need to have the KVM hypervisor installed, along with a few other packages:
+Note
+----
 
-- genisoimage or mkisofs
-- virt-install
-- libguestfs-tools-c
-- qemu-img
-- libvirt-client
+By default `fi-backup.sh` guarantees that qcow2 images format is consistent, but this doesn't imply that the contained filesystems are consistent too.
+In order to perform consistent backups, you can use two different strategies:
 
-To install the dependencies, run:
+1. use domain quiescence (`-q` option, see below). This requires configuring the domain to use quiescence (e.g. `apt-get install qemu-guest-agent` inside VM);
+2. dump domain state (`-s <directory>` option, see below). In this case the domain is paused, its state is dumped, a snapshot of all its disks is performed and then the domain is restarted.
 
-```
-sudo dnf -y install genisoimage virt-install libguestfs-tools-c qemu-img libvirt-client wget
-```
+Option number 2 doesn't require agents installed in the domain, but it will pause the VM for some 
+seconds (the actual number of secords depends on how busy the VM is and the mount of RAM given to the VM).
+For very busy domain, state dump could not complete, expecially if it is done on slow disks (e.g. NFS).
 
-If you want to resolve guests by their hostnames, install the `libvirt-nss` package:
+Offline backups work by comparing timestamps on the VM images vs the backup timestamps and doing a 
+"cp --update" which only updates the backups if the image timestamp is newer than the backup timestamp.
 
-```
-sudo dnf -y install libvirt-nss
-```
+The Backup method `blockpull` works as: `orig -> snap1 -> snap2 -> ... [becomes] snap3`. 
 
-Then, add `libvirt` and `libvirt_guest` to list of **hosts** databases in
-`/etc/nsswitch.conf`.  See [here](https://libvirt.org/nss.html) for more
-information.
+The blockpull method has the benefit that snap3 will be a compressed image only taking up as much 
+space as was used by the VM's OS. For example: 
+if you have a 100 GB Virtual Machine file but the VM only uses 10 GB of that 100 GB, 
+then the image file created for snap3 will only be about 10 GB, saving you 90 GB of disk space on the 
+VM host.  The disadvantage of this method is that it takes a long time for the blockpull to roll all
+previous backing files into the snap3 file (can be minutes).
 
-### Usage
+The backup method `blockcommit` works as: `orig -> snap1 -> snap2 -> .... [becomes] orig`. 
 
-```
-$ kvm-install-vm help
-NAME
-    kvm-install-vm - Install virtual guests using cloud-init on a local KVM
-    hypervisor.
+The blockcommit method has the benefits that the file name of the VM does not change and the backup
+is extremely quick (only a few seconds to roll the few changes back to orig) relative to the blockpull 
+method (can take several minutes depending on how large the VM is or how long the snapshot chain is). 
+The disadvantage of this method is that it does not shrink the size of orig. 
 
-SYNOPSIS
-    kvm-install-vm COMMAND [OPTIONS]
+A recommended method for automating backups via fi-backup.sh is to have the first backup be 
+done with `--method=blockpull`
+to create a smaller disk image and then for all subsequent backups use `--method=blockcommit`. 
 
-DESCRIPTION
-    A bash wrapper around virt-install to build virtual machines on a local KVM
-    hypervisor. You can run it as a normal user which will use qemu:///session
-    to connect locally to your KVM domains.
+See sample usage below for more information.
+For more information about how backups are performed, see [Nuts and Bolts of fi-backup](NUTSNBOLTS.md)
 
-COMMANDS
-    help    - show this help or help for a subcommand
-    create  - create a new guest domain
-    list    - list all domains, running and stopped
-    remove  - delete a guest domain
-```
+## Apparmor
 
-#### Creating Guest VMs
+Please note that in some cases, **apparmor prevents this script from working**:
 
-```
-$ kvm-install-vm help create
-NAME
-    kvm-install-vm create [OPTIONS] VMNAME
+`fi-backup.sh` uses the `virsh create-snapshot` command. On some distribution (e.g. Ubuntu) this command fails to create external snapshot with apparmor enabled.
 
-DESCRIPTION
-    Create a new guest domain.
+See this [bug report](https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1004606) for more information and for a workaround.
 
-OPTIONS
-    -a          Autostart           (default: false)
-    -b          Bridge              (default: virbr0)
-    -c          Number of vCPUs     (default: 1)
-    -d          Disk Size (GB)      (default: 10)
-    -D          DNS Domain          (default: example.local)
-    -f          CPU Model / Feature (default: host)
-    -g          Graphics type       (default: spice)
-    -h          Display help
-    -i          Custom QCOW2 Image
-    -k          SSH Public Key      (default: $HOME/.ssh/id_rsa.pub)
-    -l          Location of Images  (default: $HOME/virt/images)
-    -L          Location of VMs     (default: $HOME/virt/vms)
-    -m          Memory Size (MB)    (default: 1024)
-    -M          Mac address         (default: auto-assigned)
-    -p          Console port        (default: auto)
-    -s          Custom shell script
-    -t          Linux Distribution  (default: centos7)
-    -T          Timezone            (default: US/Eastern)
-    -u          Custom user         (defualt: $USER)
-    -v          Be verbose
+*Quick and dirty workaround*
 
-DISTRIBUTIONS
-    NAME            DESCRIPTION                         LOGIN
-    amazon2         Amazon Linux 2                      ec2-user
-    centos7         CentOS 7                            centos
-    centos7-atomic  CentOS 7 Atomic Host                centos
-    centos6         CentOS 6                            centos
-    debian9         Debian 9 (Stretch)                  debian
-    fedora27        Fedora 27                           fedora
-    fedora27-atomic Fedora 27 Atomic Host               fedora
-    fedora28        Fedora 28                           fedora
-    fedora28-atomic Fedora 28 Atomic Host               fedora
-    ubuntu1604      Ubuntu 16.04 LTS (Xenial Xerus)     ubuntu
-    ubuntu1804      Ubuntu 18.04 LTS (Bionic Beaver)    ubuntu
+Edit `/etc/libvirt/qemu.conf` and set
 
-EXAMPLES
-    kvm-install-vm create foo
-        Create VM with the default parameters: CentOS 7, 1 vCPU, 1GB RAM, 10GB
-        disk capacity.
+    security_driver = "none"
 
-    kvm-install-vm create -c 2 -m 2048 -d 20 foo
-        Create VM with custom parameters: 2 vCPUs, 2GB RAM, and 20GB disk
-        capacity.
+## Dependencies
 
-    kvm-install-vm create -t debian9 foo
-        Create a Debian 9 VM with the default parameters.
+`fi-backup.sh` is designed to run on GNU/Linux. The following software is also required:
 
-    kvm-install-vm create -T UTC foo
-        Create a default VM with UTC timezone.
+* libVirt >= 0.9.13
+* QEMU/KVM >= 1.2.0
 
-    kvm-install-vm create -s ~/script.sh -g vnc -u bar foo
-        Create a VM with a custom script included in user-data, a graphical
-        console accessible over VNC, and a user named 'bar'.
-```
+### Syntax
 
-#### Deleting a Guest Domain
+    fi-backup version 2.1.0 - Davide Guerri <davide.guerri@gmail.com>
 
-```
-$ kvm-install-vm help remove
-NAME
-    kvm-install-vm remove [COMMANDS] VMNAME
+    Usage:
 
-DESCRIPTION
-    Destroys (stops) and undefines a guest domain.  This also remove the
-    associated storage pool.
+    ./fi-backup.sh [-c|-C] [-q|-s <directory>] [-h] [-d] [-v] [-V] [-b <directory>] "<domains separated by spaces>"|all
 
-COMMANDS
-    help - show this help
+    Options
+       -b, --backup_dir <directory>      Copy previous snapshot/base image to the specified <directory>
+       -c, --consolidate_only            Consolidation only
+       -C, --consolidate_and_snapshot    Snapshot and consolidation
+       -m, --method <method>             Use blockpull or blockcommit for consolidation
+       -q, --quiesce                     Use quiescence (qemu agent must be installed in the domain)
+       -s, --dump_state_dir <directory>  Dump domain status in the specified directory
+       -d, --debug                       Debug
+       -r, --all_running                 Backup all running domains only (do not specify domains)
+       -h, --help                        Print usage and exit
+       -v, --verbose                     Verbose
+       -V, --version                     Print version and exit
 
-EXAMPLE
-    kvm-install-vm remove foo
-        Remove (destroy and undefine) a guest domain.  WARNING: This will
-        delete the guest domain and any changes made inside it!
-```
+### Sample usage
 
-#### Attaching a new disk
+#### _Forward incremental_ backup of a virtual machine with one disk
+(output might be slightly different depending on the version used)
 
-```
-$ kvm-install-vm help attach-disk
-NAME
-    kvm-install-vm attach-disk [OPTIONS] [COMMANDS] VMNAME
+    ~# mkdir -p /nfs/backup-dir/fi-backups/DGuerri_Domain
 
-DESCRIPTION
-    Attaches a new disk to a guest domain.
+    ~# ./fi-backup.sh -b /nfs/backup-dir/fi-backups/DGuerri_Domain -d DGuerri_Domain
+    [DEB] libVirt version '0.9.13' is supported
+    [DEB] qemu-img version '1.2.0' is supported
+    [DEB] KVM version '1.2.0' is supported
+    [DEB] Snapshot for domain 'DGuerri_Domain' requested
+    [DEB] Using timestamp '20130531-114338'
+    [DEB] Snapshotting block devices for 'DGuerri_Domain' using suffix 'bimg-20130531-114338'
+    [VER] Snapshot for block devices of 'DGuerri_Domain' successful
+    [VER] Copy backing file '/nfs/original-dir/DGuerri_Domain.img' to '/nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.img'
+    [VER] No parent backing file for '/nfs/original-dir/DGuerri_Domain.img'
 
-COMMANDS
-    help - show this help
+The original images directory content after this backup is shown below.
 
-OPTIONS
-    -d SIZE     Disk size (GB)
-    -f FORMAT   Disk image format       (default: qcow2)
-    -s IMAGE    Source of disk device
-    -t TARGET   Disk device target
+    ~# ls /nfs/original-dir/DGuerri_Domain* -latr
+    -rw------- 1 libvirt-qemu kvm 64108953600 May 31  2013 /nfs/original-dir/DGuerri_Domain.img
+    -rw------- 1 libvirt-qemu kvm  1883308032 May 31  2013 /nfs/original-dir/DGuerri_Domain.bimg-20130531-114338
 
-EXAMPLE
-    kvm-install-vm attach-disk -d 10 -s example-5g.qcow2 -t vdb foo
-        Attach a 10GB disk device named example-5g.qcow2 to the foo guest
-        domain.
-```
+`DGuerri_Domain.bimg-20130531-114338` is the current image for `DGuerri_Domain`.
+`DGuerri_Domain.img` is now the backing file for `DGuerri_Domain.bimg-20130531-114338`.
 
-### Setting Custom Defaults
+The backup directory now contains the following files:
 
-Copy the `.kivrc` file to your $HOME directory to set custom defaults.  This is
-convenient if you find yourself repeatedly setting the same options on the
-command line, like the distribution or the number of vCPUs.
+    ~# ls /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain* -latr
+    drwxr-xr-x 2 root root        4096 May 31  2013 .
+    drwxr-xr-x 3 root root        4096 May 31  2013 ..
+    -rw------- 1 root root 64108953600 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.img
 
-Options are evaluated in the following order:
+Some time later, another backup is made:
 
-- Default options set in the script
-- Custom options set in `.kivrc`
-- Option flags set on the command line
+    ~# ./fi-backup.sh -b /nfs/backup-dir/fi-backups/DGuerri_Domain -d DGuerri_Domain
+    [DEB] libVirt version '0.9.13' is supported
+    [DEB] qemu-img version '1.2.0' is supported
+    [DEB] KVM version '1.2.0' is supported
+    [DEB] Snapshot for domain 'DGuerri_Domain' requested
+    [DEB] Using timestamp '20130531-120054'
+    [DEB] Snapshotting block devices for 'DGuerri_Domain' using suffix 'bimg-20130531-120054'
+    [VER] Snapshot for block devices of 'DGuerri_Domain' successful
+    [VER] Copy backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-114338' to '/nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-114338'
+    [DEB] Parent backing file: '/nfs/original-dir/DGuerri_Domain.img'
+    [VER] Changing original backing file reference for '/nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-114338' from '/nfs/original-dir/DGuerri_Domain.img' to '/nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.img'
 
-### Notes
+The original images directory content after this backup is shown below.
 
-1. This script will download a qcow2 cloud image from the respective
-   distribution's download site.  See script for URLs.
+    ~# ls /nfs/original-dir/DGuerri_Domain* - -latr
+    -rw------- 1 libvirt-qemu kvm 64108953600 May 31  2013 /nfs/original-dir/DGuerri_Domain.img
+    -rw------- 1 libvirt-qemu kvm  1883308032 May 31  2013 /nfs/original-dir/DGuerri_Domain.bimg-20130531-114338
+    -rw------- 1 libvirt-qemu kvm   221446144 May 31  2013 /nfs/original-dir/DGuerri_Domain.bimg-20130531-120054
 
-2. If using libvirt-nss, keep in mind that DHCP leases take some time to
-   expire, so if you create a VM, delete it, and recreate another VM with the
-   same name in a short period of time, there will be two DHCP leases for the
-   same host and its hostname will likely not resolve until the old lease
-   expires.
+`DGuerri_Domain.img` is the backing file for `DGuerri_Domain.bimg-20130531-114338` which in turn is the backing file for `DGuerri_Domain.bimg-20130531-120054`.
+The image `DGuerri_Domain.bimg-20130531-120054` is the current image for the domain named `DGuerri_Domain`.
 
-### Testing
+The backup directory now contains the following files:
 
-Tests are written using [Bats](https://github.com/sstephenson/bats).  To
-execute the tests, run `./test.sh` in the root directory of the project.
+    ~# ls /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain* -latr
+    -rw------- 1 root root 64108953600 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.img
+    -rw------- 1 root root  1883308032 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-114338
 
-### Use Cases
+`DGuerri_Domain.img` is the backing file for `DGuerri_Domain.bimg-20130531-114338`.
 
-If you don't need to use Docker or Vagrant, don't want to make changes to a
-production machine, or just want to spin up one or more VMs locally to test
-things like:
+After some more backups, the content of the original directory is the following:
 
-- high availability
-- clustering
-- package installs
-- preparing for exams
-- checking for system defaults
-- anything else you would do with a VM
+    ~# ls /nfs/original-dir/DGuerri_Domain*  -latr
+    -rw------- 1 libvirt-qemu kvm 64108953600 May 31 12:40 /nfs/original-dir/DGuerri_Domain.img
+    -rw------- 1 libvirt-qemu kvm  1883308032 May 31 12:58 /nfs/original-dir/DGuerri_Domain.bimg-20130531-114338
+    -rw------- 1 libvirt-qemu kvm  1394475008 May 31  2013 /nfs/original-dir/DGuerri_Domain.bimg-20130531-120054
+    -rw------- 1 libvirt-qemu kvm      524288 May 31  2013 /nfs/original-dir/DGuerri_Domain.bimg-20130531-125445
+    -rw------- 1 libvirt-qemu kvm      786432 May 31  2013 /nfs/original-dir/DGuerri_Domain.bimg-20130531-125701
+    -rw------- 1 libvirt-qemu kvm     3604480 May 31  2013 /nfs/original-dir/DGuerri_Domain.bimg-20130531-125719
 
-...then this wrapper could be useful for you.
+And here is the content for the backup directory:
+
+    ~# ls /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain* -latr
+    -rw------- 1 root root 64108953600 May 31 12:56 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.img
+    -rw------- 1 root root  1883308032 May 31 12:58 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-114338
+    -rw------- 1 root root  1394475008 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-120054
+    -rw------- 1 root root      524288 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-125445
+    -rw------- 1 root root      786432 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-125701
+
+Consolidation example:
+
+    ~# ./fi-backup.sh -c -d DGuerri_Domain
+    [DEB] libVirt version '0.9.13' is supported
+    [DEB] qemu-img version '1.2.0' is supported
+    [DEB] KVM version '1.2.0' is supported
+    [DEB] Consolidation of block devices for 'DGuerri_Domain' requested
+    [DEB] Block devices to be consolidated:
+     /nfs/original-dir/DGuerri_Domain.bimg-20130531-125719
+    [DEB] Consolidation of block device: '/nfs/original-dir/DGuerri_Domain.bimg-20130531-125719' for 'DGuerri_Domain'
+    [DEB] Parent block device: '/nfs/original-dir/DGuerri_Domain.bimg-20130531-125701'
+    [VER] Consolidation of block device '/nfs/original-dir/DGuerri_Domain.bimg-20130531-125719' for 'DGuerri_Domain' successful
+    [VER] Deleting old backup files for 'DGuerri_Domain'
+    [DEB] Processing old backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-125701' for 'DGuerri_Domain'
+    [VER] Deleting backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-125701'
+    [DEB] Next file in backing file chain: '/nfs/original-dir/DGuerri_Domain.bimg-20130531-125445'
+    [DEB] Processing old backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-125445' for 'DGuerri_Domain'
+    [VER] Deleting backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-125445'
+    [DEB] Next file in backing file chain: '/nfs/original-dir/DGuerri_Domain.bimg-20130531-120054'
+    [DEB] Processing old backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-120054' for 'DGuerri_Domain'
+    [VER] Deleting backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-120054'
+    [DEB] Next file in backing file chain: '/nfs/original-dir/DGuerri_Domain.bimg-20130531-114338'
+    [DEB] Processing old backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-114338' for 'DGuerri_Domain'
+    [VER] Deleting backing file '/nfs/original-dir/DGuerri_Domain.bimg-20130531-114338'
+    [DEB] Next file in backing file chain: '/nfs/original-dir/DGuerri_Domain.img'
+    [DEB] Processing old backing file '/nfs/original-dir/DGuerri_Domain.img' for 'DGuerri_Domain'
+    [WAR] '/nfs/original-dir/DGuerri_Domain.img' doesn't seem to be a backup backing file image. Stopping backing file chain removal (manual intervetion required)...
+
+The last error occours because the filename `DGuerri_Domain.img` doesn't have `bimg-<timestamp>` suffix. In this particular case, we can safely remove this file.
+
+    ~# ls /nfs/original-dir/DGuerri_Domain.* -la
+    -rw------- 1 libvirt-qemu kvm 64108953600 May 31  2013 /nfs/original-dir/DGuerri_Domain.bimg-20130531-125719
+    -rw------- 1 libvirt-qemu kvm 64108953600 May 31 12:40 /nfs/original-dir/DGuerri_Domain.img
+
+Of course the backup images remain untouched. Each image depends on the previous one.
+
+    ~# ls /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain* -latr
+    -rw------- 1 root root 64108953600 May 31 12:56 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.img
+    -rw------- 1 root root  1883308032 May 31 12:58 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-114338
+    -rw------- 1 root root  1394475008 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-120054
+    -rw------- 1 root root      524288 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-125445
+    -rw------- 1 root root      786432 May 31  2013 /nfs/backup-dir/fi-backups/DGuerri_Domain/DGuerri_Domain.bimg-20130531-125701
+
+The recovery of an incremental backup is possible using the appropriate chain.
+For instance, in order to recover the backup with timestamp `20130531-120054`, the following images are needed:
+
+* `DGuerri_Domain.img`
+* `DGuerri_Domain.bimg-20130531-114338`
+* `DGuerri_Domain.bimg-20130531-120054`
+
+# Contributing to LibVirtKvm-Scripts
+
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
+* Fork the project.
+* Start a feature/bugfix branch.
+* Commit and push until you are happy with your contribution.
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+# Copyright
+
+Copyright (C) 2013 2014 2015 Davide Guerri - <davide.guerri@gmail.com>
+See LICENSE.txt for further details.

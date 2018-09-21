@@ -1,0 +1,236 @@
+---
+language: python
+python: "2.7"
+sudo: required
+dist: trusty
+
+install:
+  # Install dependencies
+  - sudo add-apt-repository -y "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe"
+  - sudo apt-get -y update
+  #- sudo apt-get install --reinstall -y -o Dpkg::Options::="--force-confnew" fontconfig fontconfig-config
+  - sudo do-release-upgrade -f DistUpgradeViewNonInteractive -m server
+  #- sudo apt-get install --reinstall -y -o Dpkg::Options::="--force-confnew" cpp-4.9 gcc-4.9
+  #- sudo apt-get install --reinstall -y -o Dpkg::Options::="--force-confnew" libstdc++6
+  #- sudo apt-get install --reinstall -y -o Dpkg::Options::="--force-confnew" librados2
+  #- sudo apt-get install --reinstall -y -o Dpkg::Options::="--force-confnew" librbd1
+  - sudo apt-get install --reinstall -y -o Dpkg::Options::="--force-confnew" libvirt-bin virtinst qemu-kvm
+
+  # Configure libvirt qemu
+  - sudo sh -c 'echo "security_driver = \"none\"" >> /etc/libvirt/qemu.conf'
+  - sudo service libvirt-bin restart
+  - sudo service qemu-kvm restart
+  - sleep 2
+
+  #See if we can setup a VM
+  - sudo virsh net-list
+  # Uncomment for more details
+  #- sudo virsh --connect qemu:///system capabilities
+
+  #install Shellcheck
+  #- sudo apt-get install -y -o Dpkg::Options::="--force-confnew" cabal-install
+  #- sudo cabal update
+  #- sudo cabal install shellcheck
+  - sudo apt-get install -y -o Dpkg::Options::="--force-confnew" shellcheck
+
+  # Download cirros image and setup disks
+  - >
+    wget --no-check-certificate
+    https://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+    -O /tmp/cirros.img
+  - mkdir /tmp/test\ disks /tmp/backup\ dir
+  - sudo chmod 0777 /tmp/backup\ dir
+  - cp /tmp/cirros.img /tmp/test\ disks/test1\ 1.img
+  - cp /tmp/cirros.img /tmp/test\ disks/test2\ 1.img
+  - cp /tmp/cirros.img /tmp/test\ disks/test2\ 2.img
+
+  # Create VMS
+  - >
+    sudo virt-install --connect qemu:///system --os-type linux
+    --os-variant generic --debug --import --name t1d --ram 512 --vcpus 1
+    --noautoconsole --nographics --virt-type qemu --nonetworks
+    --disk path=/tmp/test\ disks/test1\ 1.img,device=disk,format=qcow2
+
+  - >
+    sudo virt-install --connect qemu:///system --os-type linux
+    --os-variant generic --debug --import --name t2d --ram 512 --vcpus=1
+    --noautoconsole --nographics --virt-type qemu --nonetworks
+    --disk path=/tmp/test\ disks/test2\ 1.img,device=disk,format=qcow2
+    --disk path=/tmp/test\ disks/test2\ 2.img,device=disk,format=qcow2
+
+  - sudo virsh list --all
+
+script:
+  # Check fi-backup.sh syntax
+  - shellcheck --exclude=SC2181 fi-backup.sh
+
+  # Test0: stop VMs and see if offline backup works, then restart domains
+  # shutdown can't be monitored from within virsh. Wait to ensure full start/stop
+  - mkdir /tmp/backup_off\ dir
+  - sudo chmod 0777 /tmp/backup_off\ dir
+  - sleep 20
+  - sudo virsh shutdown t1d
+  - sleep 15
+  - sudo virsh -r list --all
+  - sudo virsh shutdown t2d
+  - sleep 15
+  - sudo virsh -r list --all
+  - sudo ./fi-backup.sh -d -b /tmp/backup_off\ dir all
+  - ls -la /tmp/backup_off\ dir/test*
+  - sleep 2
+  - sudo virsh start t1d
+  - sudo virsh start t2d
+  - sleep 2
+
+  # Test1 1 disk, spaces in filenames
+  ## 1st Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir t1d
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir t1d
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Consolidate
+  - sudo ./fi-backup.sh -dc t1d
+  ## 2nd Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir t1d
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir t1d
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Consolidate
+  - sudo ./fi-backup.sh -dc t1d
+
+  # Test2 2 disks, spaces in filenames
+  ## 1st Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir t2d
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir t2d
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Consolidate
+  - sudo ./fi-backup.sh -dc t2d
+  ## 2nd Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir t2d
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir t2d
+  ### Consolidate
+  - sudo ./fi-backup.sh -dc t2d
+  - sleep 2
+
+  # Test3 all domains
+  ## 1st Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir all
+  ### Consolidate
+  - sudo ./fi-backup.sh -dc all
+  ## 2nd Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Consolidate
+  - sudo ./fi-backup.sh -dc all
+  - sleep 2
+
+  # Test4 all domains, snapshot + consolidate
+  ## 1st Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Consolidate
+  - sudo ./fi-backup.sh -dC all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ## 2nd Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -b /tmp/backup\ dir all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Consolidate
+  - sudo ./fi-backup.sh -dC all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+
+  # Test5 all domains, dump state, snapshot, consolidate
+  ## 1st Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -s /tmp/backup\ dir -b /tmp/backup\ dir all
+  - sudo virsh list --all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -s /tmp/backup\ dir -b /tmp/backup\ dir all
+  - sudo virsh list --all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Consolidate
+  - sudo ./fi-backup.sh -dc all
+  - sudo virsh list --all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ## 2nd Backup
+  ### Backup
+  - sudo ./fi-backup.sh -d -s /tmp/backup\ dir -b /tmp/backup\ dir all
+  - sudo virsh list --all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Backup
+  - sudo ./fi-backup.sh -d -s /tmp/backup\ dir -b /tmp/backup\ dir all
+  - sudo virsh list --all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
+  - sleep 2
+  ### Consolidate
+  - sudo ./fi-backup.sh -dc all
+  - sudo virsh list --all
+  - ls -la /tmp/backup\ dir
+  - ls -la /tmp/test\ disks
