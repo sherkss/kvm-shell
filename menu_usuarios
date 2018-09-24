@@ -6,7 +6,7 @@ PROMPT()
 read -e -n1 PRMPT ;
 local PRMPT ;
 }
-
+ 
 PMENU() 
 {
 #GERACOR;
@@ -60,62 +60,69 @@ MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1.25 ; }
 
 FUNCAO_01() {
 	tput clear;
-	printf "\n";printf "Adicionar usuário: \n";
-	read $addusuario;
-	if ("$addusuario" != ''); then
 
-		useradd $addusuario;
-		echo "senha do usuario $addusuario: ";
-		
-		read $addusuario_pass;
+	printf "\n";printf "Adicionar usuário: \n"
 
-		if ("$addusuario_pass" != ''); then	
-		passwd $addusuario_pass;
-		else
-		return 68;
+	read $addusuario ;
+	test $addusuario ;
+
+	if [ $? != "1" ]; then
+		useradd ${addusuario};
+
+			echo "senha do usuario ${addusuario}:" ;
+
+			read $addusuario_pass ;
+			test -z $addusuario_pass
+
+		if [ $? != "1" ];
+		then
+				passwd ${addusuario_pass} ;
 		fi
-	else
-	PCM
 	fi
-
-	sleep 2;
 	PCM
+
 }
 
 FUNCAO_02() {
-	echo "Lista de usuarios:";
-	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$;
-	sleep 2;
+	tput clear ;
+
+	echo "Lista de usuarios:" ;
+	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$ ;
 
 	PCM
 }
 
 FUNCAO_03() {
-	echo "Deletar usuário: ";
+	tput clear ;
+
+	echo "Deletar usuário: " ;
+
 	read $delusuario;
 	
-	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${delusuario};
-	if ( "$?" != 1)
+	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${delusuario} ;
+
+	if [ "$?" != "1" ] ;	
 	then
-	deluser $delusuario;
+		deluser $delusuario ;
 	fi
 	
 	PCM
 }
 
 FUNCAO_04() {
-	echo "Nome do usuario:";
+	tput clear ;
+
+	echo "Nome do usuario:" ;
 	read $senha_usuario;
 	
-	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${senha_usuario};
-	if ( "$?" != 1)
+	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${senha_usuario} ;
+	if [ "$?" != "1" ] ;
 	then
-	
-	echo "senha do usuario $senha_usuario:";
-	passwd $senha_usuario;
+		echo "senha do usuario $senha_usuario:" ;
+		passwd $senha_usuario ;
 	fi
 	
-	sleep 1;
+	sleep 0.5;
 
 	PCM
 }
