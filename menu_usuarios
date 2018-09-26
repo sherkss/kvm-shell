@@ -43,6 +43,7 @@ MENU() {
 
 
 COLS() {
+
 	COLS=$(tput cols)
 	POS=$(((COLS-44)/2+1))
 	POS1=$((POS+1))
@@ -63,25 +64,20 @@ FUNCAO_01() {
 
 	printf "\n";printf "Adicionar usuário: \n"
 
-	read $addusuario ;
-	
-	test $addusuario ;
+	read addusuario
+	test $addusuario
 
 	if [ $? != "1" ];
 		then
-		useradd ${addusuario};
+		useradd $addusuario
 
-			echo "senha do usuario ${addusuario}:" ;
-
-			read $addusuario_pass ;
-			
-			test -z $addusuario_pass
-
-		if [ $? != "1" ];
-		then
-				passwd ${addusuario_pass} ;
-		fi
+		if [ $? != "1"]
+		passwd $addusuario
+		usermod --shell /bin/bash $addusuario
 	fi
+	
+	sleep 0.5	
+
 	PCM
 
 }
@@ -90,7 +86,16 @@ FUNCAO_02() {
 	tput clear ;
 
 	echo "Lista de usuarios:" ;
-	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep -v \$$ ;
+
+	#cat /etc/passwd | tr ':' '\t' |grep '1000' |cut -f1
+	#volta o usuario 1000 que é criado pelo administador.
+
+	if [ $numero = 1000; $numero++ ];
+	then
+	cat /etc/passwd | tr ':' '\t' |grep '${numero}' |cut -f1
+	fi
+
+	sleep 0.5
 
 	PCM
 }
@@ -100,15 +105,19 @@ FUNCAO_03() {
 
 	echo "Deletar usuário: " ;
 
-	read $delusuario;
+	read delusuario;
 	
 	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${delusuario} ;
 
 	if [ $? != "1" ];
 	then
 		deluser $delusuario ;
+	else
+	echo "Usuário não existe"
 	fi
-	
+
+	sleep 0.5
+
 	PCM
 }
 
@@ -116,14 +125,15 @@ FUNCAO_04() {
 	tput clear ;
 
 	echo "Nome do usuario:" ;
-	read $senha_usuario;
+
+	read senha_usuario;
 	
 	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${senha_usuario} ;
 	
 	if [ $? != "1" ];
 	then
 		echo "senha do usuario $senha_usuario:" ;
-		passwd $senha_usuario ;
+		passwd senha_usuario ;
 	fi
 	
 	sleep 0.5;
