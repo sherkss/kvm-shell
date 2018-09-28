@@ -88,12 +88,10 @@ FUNCAO_02() {
 	echo "Lista de usuarios:" ;
 
 	#cat /etc/passwd | tr ':' '\t' |grep '1000' |cut -f1
-	#volta o usuario 1000 que é criado pelo administador.
+	#volta o usuario que possuem terminal /bin/bash
 
-	if [ $numero = 1000; $numero++ ];
-	then
-	cat /etc/passwd | tr ':' '\t' |grep '${numero}' |cut -f1
-	fi
+	cat /etc/passwd | tr ':' '\t' |grep "/bin/bash" |cut -f1
+
 
 	sleep 0.5
 
@@ -107,7 +105,8 @@ FUNCAO_03() {
 
 	read delusuario;
 	
-	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${delusuario} ;
+	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep "${delusuario}" ;
+
 
 	if [ $? != "1" ];
 	then
@@ -124,16 +123,15 @@ FUNCAO_03() {
 FUNCAO_04() {
 	tput clear ;
 
-	echo "Nome do usuario:" ;
+	echo "Nome do usuario:"
 
-	read senha_usuario;
+	read senha_usuario
 	
-	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep ${senha_usuario} ;
+	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep "${senha_usuario}" ;
 	
 	if [ $? != "1" ];
 	then
-		echo "senha do usuario $senha_usuario:" ;
-		passwd senha_usuario ;
+		passwd $senha_usuario ;
 	fi
 	
 	sleep 0.5;
