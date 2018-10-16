@@ -1,0 +1,159 @@
+#!/bin/bash
+PCM(){ PROMPT ;clear; PMENU;}
+
+PROMPT()
+{ printf "${CE}\e[18;$(( ($(tput cols)-46 )/2+1))f<< PRESSIONE QUALQUER TECLA  PARA CONTINUAR >>${FC}";
+read -e -n1 PRMPT ;
+local PRMPT ;
+}
+
+PMENU() 
+{
+#GERACOR;
+COLS;
+}
+
+
+MENU() {
+	tput clear
+	printf "${CE}\e[2;${POS2}f----------------------------------------"
+	printf "\e[3;${POS1}f----------------  ----------------"
+	printf "\e[4;${POS}f---\e[4;${POS3}f---"
+	printf "\e[5;${POS}f---${CSM}    [1] Criar           [2] Listar    ${CE}---"
+	printf "\e[6;${POS}f---${CSM}    [3] Iniciar         [4] Deletar   ${CE}---"
+	printf "\e[7;${POS}f---${CSM}    [5] Pausar          [6] Opção 6   ${CE}---"
+	printf "\e[8;${POS}f---${CSM}    [7] Help            [8] Exit      ${CE}---"
+	printf "\e[9;${POS}f---\e[9;${POS3}f---"
+
+	printf "${CE}\e[10;${POS1}f------------------------------------------"
+	printf "\e[11;${POS2}f----------------------------------------\n\n"$FC""
+	read -p " OPÇãO: " -n1 OPC
+
+	case "$OPC" in
+	1) FUNCAO_01 ;;
+	2) FUNCAO_02 ;;
+	3) FUNCAO_03 ;;
+	4) FUNCAO_04 ;;
+	5) echo -e "\n Criar FUNÇãO_05\n"; PCM ;;
+	6) echo -e "\n Criar FUNÇãO_06\n"; PCM ;;
+	7) echo -e "\n${CE} Centraliza e altera a cor do MENU${FC}"; sleep 1 ; PMENU ;;
+	8) echo -e "\n\n Saindo...\n";sleep 0.5; exit ;;
+	*) MSGM ; PMENU ;;
+	esac
+}
+
+
+COLS() {
+	COLS=$(tput cols)
+	POS=$(((COLS-44)/2+1))
+	POS1=$((POS+1))
+	POS2=$((POS+2))
+	POS3=$((POS2+39))
+	(($COLS>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PCM ; }
+}
+
+GERACOR() {
+	local cnt=$((1+RANDOM%31));local atb=$((RANDOM%2));
+	CSM="\e["$atb";38;5;"$cnt"m"
+}
+
+MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
+
+FUNCAO_01() {
+
+
+PCM
+}
+
+FUNCAO_02() {
+
+PCM
+}
+
+FUNCAO_03() {
+
+PCM
+}
+
+FUNCAO_04() {
+
+PCM
+}
+
+PMENU
+
+name(){
+
+}
+
+mac() {
+	openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+}
+
+bridge(){
+
+}
+
+PVM() 
+{
+#GERACOR;
+COLS;
+}
+
+VM(){
+	tput clear
+	printf "${CE}\e[2;${POS2}f----------------------------------------"
+	printf "\e[3;${POS1}f-------------- MENU IMPORTAÇÃO --------------"
+	printf "\e[4;${POS}f---\e[4;${POS3}f---"
+	printf "\e[5;${POS}f---${CSM}    [1] Debian 7.1      [2] Debian 9.4${CE}---"
+	printf "\e[6;${POS}f---${CSM}    [3] Win.Server 2008 [4] Win 2007  ${CE}---"
+	printf "\e[7;${POS}f---${CSM}    [5] Win.Server 2012 [6] Win 2010  ${CE}---"
+	printf "\e[8;${POS}f---${CSM}    [7] Kali            [8]           ${CE}---"
+	printf "\e[9;${POS}f---${CSM}              [9] Cancelar            ${CE}---"
+	printf "\e[10;${POS}f---\e[10;${POS3}f---"
+
+	printf "${CE}\e[11;${POS1}f------------------------------------------"
+	printf "\e[12;${POS2}f----------------------------------------\n\n"$FC""
+	read -p " OPÇãO: " -n1 OPCVM
+
+	case "$OPCVM" in
+	1) Debian71 ;;
+	2) Debian94 ;;
+	3) WinServer08 ;;
+	4) Win07 ;;
+	5) WinServer12 ;;
+	6) Win10 ;;
+	7) Kali ;;
+	8)  ;;
+	9) echo -e "\n\n Cancelando...\n";sleep 0.5; exit ;;
+	*) MSGM ; PVM ;;
+	esac
+}
+
+mac() {
+	openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+}
+
+Debian71(){
+echo -e "Nome da maquina virtual: \n"
+read name
+echo -e "Tamanho do HD (Máximo = 50 Gb): \n"
+read tamanho
+if [ tamanho >0; tamanho =<50 ];then
+qemu-img create $name.iso -f qcow2 $tamanho
+else
+echo -e "Informe um tamanho valido"
+fi
+echo -e "Tamanho da maquina virtual: \n"
+read memory
+echo -e "Quantidade de Cpu: \n"
+read vcpus
+qemu-img create $name.iso -f qcow2 $tamanho
+virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=$format,bus=$bus --disk lin-cidata.iso,device=cdrom --network bridge=$bridge,model=$model,mac=${mac} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
+
+
+}
+
+virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu $host --disk $disk,format=$format,bus=$bus --disk lin-cidata.iso,device=cdrom --network bridge=$bridge,model=$model,mac=${mac} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
+
+
