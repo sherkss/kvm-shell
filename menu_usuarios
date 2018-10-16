@@ -13,16 +13,15 @@ PMENU()
 COLS;
 }
 
-
 MENU() {
 	tput clear
 	printf "${CE}\e[2;${POS2}f----------------------------------------"
-	printf "\e[3;${POS1}f------------------ MENU ------------------"
+	printf "\e[3;${POS1}f-------------- MENU USÚARIO --------------"
 	printf "\e[4;${POS}f---\e[4;${POS3}f---"
 	printf "\e[5;${POS}f---${CSM}    [1] Cadastrar       [2] Listar    ${CE}---"
 	printf "\e[6;${POS}f---${CSM}    [3] Remover         [4] Alterar   ${CE}---"
-	printf "\e[7;${POS}f---${CSM}    [5] Opção 5         [6] Opção 6   ${CE}---"
-	printf "\e[8;${POS}f---${CSM}    [7] Cor Menu        [8] Exit      ${CE}---"
+#	printf "\e[7;${POS}f---${CSM}    [5] Opção 5         [6] Opção 6   ${CE}---"
+	printf "\e[8;${POS}f---${CSM}               [8] Exit               ${CE}---"
 	printf "\e[9;${POS}f---\e[9;${POS3}f---"
 	printf "${CE}\e[10;${POS1}f------------------------------------------"
 	printf "\e[11;${POS2}f----------------------------------------\n\n"$FC""
@@ -33,14 +32,10 @@ MENU() {
 	2) FUNCAO_02 ;;
 	3) FUNCAO_03 ;;
 	4) FUNCAO_04 ;;
-	5) echo -e "\n Criar FUNÇãO_05\n"; PCM ;;
-	6) echo -e "\n Criar FUNÇãO_06\n"; PCM ;;
-	7) echo -e "\n${CE} Centraliza e altera a cor do MENU${FC}"; sleep 1 ; PMENU ;;
 	8) echo -e "\n\n Saindo...\n";sleep 0.5; exit ;;
 	*) MSGM ; PMENU ;;
 	esac
 }
-
 
 COLS() {
 
@@ -57,7 +52,7 @@ GERACOR() {
 	CSM="\e["$atb";38;5;"$cnt"m"
 }
 
-MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1.25 ; }
+MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 
 FUNCAO_01() {
 	tput clear;
@@ -77,7 +72,6 @@ FUNCAO_01() {
 	fi
 	
 	sleep 0.5	
-
 	PCM
 
 }
@@ -87,14 +81,12 @@ FUNCAO_02() {
 
 	echo "Lista de usuarios:" ;
 
-	#cat /etc/passwd | tr ':' '\t' |grep '1000' |cut -f1
+	#cat /etc/passwd | tr ':' '\t' |grep "/bin/bash" |cut -f1
 	#volta o usuario que possuem terminal /bin/bash
 
 	cat /etc/passwd | tr ':' '\t' |grep "/bin/bash" |cut -f1
 
-
 	sleep 0.5
-
 	PCM
 }
 
@@ -107,7 +99,6 @@ FUNCAO_03() {
 	
 	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep "${delusuario}" ;
 
-
 	if [ $? != "1" ];
 	then
 		deluser $delusuario ;
@@ -116,10 +107,8 @@ FUNCAO_03() {
 	fi
 
 	sleep 0.5
-
 	PCM
 }
-
 FUNCAO_04() {
 	tput clear ;
 
@@ -135,8 +124,6 @@ FUNCAO_04() {
 	fi
 	
 	sleep 0.5;
-
 	PCM
 }
-
 PMENU
