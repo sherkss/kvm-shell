@@ -148,8 +148,6 @@ virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --
 
 #virt-sparsify --compress --convert qcow2 --format qcow2 $IMGNAME.$EXT $IMGNAME-sparsified.$EXT
 
-#mv $IMGNAME-sparsified.$EXT $IMGNAME.$EXT
-
 debian9base=
 cp $debian9base $IMGNAME.$EXT
 
