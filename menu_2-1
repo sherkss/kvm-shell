@@ -30,10 +30,10 @@ MENU() {
 	read -p " OPÇãO: " -n1 OPC
 
 	case "$OPC" in
-	1) FUNCAO_01 ;;
-	2) FUNCAO_02 ;;
-	3) FUNCAO_03 ;;
-	4) FUNCAO_04 ;;
+	1) VM ;;
+	2) LISTAR ;;
+	3) INICIAR ;;
+	4) DELETAR ;;
 	5) echo -e "\n Criar FUNÇãO_05\n"; PCM ;;
 	6) echo -e "\n Criar FUNÇãO_06\n"; PCM ;;
 	7) echo -e "\n${CE} Centraliza e altera a cor do MENU${FC}"; sleep 1 ; PMENU ;;
@@ -59,23 +59,17 @@ GERACOR() {
 
 MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 
-FUNCAO_01() {
-
-
-PCM
-}
-
-FUNCAO_02() {
+LISTAR() {
 
 PCM
 }
 
-FUNCAO_03() {
+INICIAR() {
 
 PCM
 }
 
-FUNCAO_04() {
+DELETAR() {
 
 PCM
 }
@@ -93,10 +87,10 @@ VM(){
 	printf "${CE}\e[2;${POS2}f----------------------------------------"
 	printf "\e[3;${POS1}f-------------- MENU IMPORTAÇÃO --------------"
 	printf "\e[4;${POS}f---\e[4;${POS3}f---"
-	printf "\e[5;${POS}f---${CSM}    [1] Debian 7.1      [2] Debian 9.4${CE}---"
+	printf "\e[5;${POS}f---${CSM}    [1] Debian 7        [2] Debian 9  ${CE}---"
 	printf "\e[6;${POS}f---${CSM}    [3] Win.Server 2008 [4] Win 2007  ${CE}---"
 	printf "\e[7;${POS}f---${CSM}    [5] Win.Server 2012 [6] Win 2010  ${CE}---"
-	printf "\e[8;${POS}f---${CSM}    [7] Kali            [8]           ${CE}---"
+	printf "\e[8;${POS}f---${CSM}    [7] Kali            [8] Debian 8  ${CE}---"
 	printf "\e[9;${POS}f---${CSM}              [9] Cancelar            ${CE}---"
 	printf "\e[10;${POS}f---\e[10;${POS3}f---"
 
@@ -120,7 +114,7 @@ VM(){
 
 
 mac() {
-	openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 }
 
     if [ -z "${MACADDRESS}" ]
@@ -145,7 +139,20 @@ Debian7(){
 	read memory
 	echo -e "Quantidade de Cpu: \n"
 	read vcpus
-virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=$format,bus=$bus --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
+virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
 }
 
+
+
+
+
+#virt-sparsify --compress --convert qcow2 --format qcow2 $IMGNAME.$EXT $IMGNAME-sparsified.$EXT
+
+#mv $IMGNAME-sparsified.$EXT $IMGNAME.$EXT
+
+debian9base=
+cp $debian9base $IMGNAME.$EXT
+
+virt-sysprep --format=qcow2 --no-selinux-relabel -a $IMGNAME.$EXT
+chown qemu:qemu $IMGNAME.$EXT
 
