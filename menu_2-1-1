@@ -76,7 +76,7 @@ INICIAR() {
 PCM
 }
 
-INICIAR() {
+PAUSAR() {
 		    virsh list --all
         exit 0
 
@@ -131,17 +131,9 @@ VM(){
 	esac
 }
 
-
-mac() {
 	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-}
-
-    if [ -z "${MACADDRESS}" ]
-    then
-        NETWORK_PARAMS="bridge=${BRIDGE},model=virtio"
-    else
+	
         NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
-    fi
 
 Debian7(){
 	echo -e "Nome da maquina virtual: \n"
@@ -158,33 +150,36 @@ Debian7(){
 	read memory
 	echo -e "Quantidade de Cpu: \n"
 	read vcpus
+	
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
+
 }
+
+
 
 #	debian9base=
 #	EXT=qcow2
-
+#
 #	cp $debian9base $IMGNAME.$EXT
-
+#
 #	virt-sysprep --format=qcow2 --no-selinux-relabel -a $IMGNAME.$EXT
-
+#
 #	chown qemu:qemu $IMGNAME.$EXT
-
-
+#
 #	bold() { echo -e "\e[1m$@\e[0m" ; }
 #	red() { echo -e "\e[31m$@\e[0m" ; }
 #	green() { echo -e "\e[32m$@\e[0m" ; }
 #	yellow() { echo -e "\e[33m$@\e[0m" ; }
 #
-	die() { red "ERR: $@" >&2 ; exit 2 ; }
+#	die() { red "ERR: $@" >&2 ; exit 2 ; }
 #	silent() { "$@" > /dev/null 2>&1 ; }
 #	output() { echo -e "- $@" ; }
 #	outputn() { echo -en "- $@ ... " ; }
 #	ok() { green "${@:-OK}" ; }
-
+#
 #	pushd() { command pushd "$@" >/dev/null ; }
 #	popd() { command popd "$@" >/dev/null ; }
-
+#
 #	outputn "Generating ISO for cloud-init"
 #		if [ `which genisoimage &>/dev/null` ]
 #		then
