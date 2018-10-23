@@ -1,5 +1,6 @@
 #!/bin/bash
 PCM(){ PROMPT ;clear; PMENU;}
+PVM(){ PROMPT ;clear; PVM;}
 
 PROMPT()
 { printf "${CE}\e[18;$(( ($(tput cols)-46 )/2+1))f<< PRESSIONE QUALQUER TECLA  PARA CONTINUAR >>${FC}";
@@ -13,11 +14,21 @@ PMENU()
 COLS;
 }
 
+bold() { echo -e "\e[1m$@\e[0m" ; }
+red() { echo -e "\e[31m$@\e[0m" ; }
+green() { echo -e "\e[32m$@\e[0m" ; }
+yellow() { echo -e "\e[33m$@\e[0m" ; }
+
+die() { red "ERR: $@" >&2 ; exit 2 ; }
+silent() { "$@" > /dev/null 2>&1 ; }
+output() { echo -e "- $@" ; }
+outputn() { echo -en "- $@ ... " ; }
+ok() { green "${@:-OK}" ; }
 
 MENU() {
 	tput clear
 	printf "${CE}\e[2;${POS2}f----------------------------------------"
-	printf "\e[3;${POS1}f----------------  ----------------"
+	printf "\e[3;${POS1}f-------------- MENU MAQUINAS --------------"
 	printf "\e[4;${POS}f---\e[4;${POS3}f---"
 	printf "\e[5;${POS}f---${CSM}    [1] Criar           [2] Listar    ${CE}---"
 	printf "\e[6;${POS}f---${CSM}    [3] Iniciar         [4] Deletar   ${CE}---"
@@ -52,6 +63,15 @@ COLS() {
 	(($COLS>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PCM ; }
 }
 
+COLS() {
+	COLS=$(tput cols)
+	POS=$(((COLS-44)/2+1))
+	POS1=$((POS+1))
+	POS2=$((POS+2))
+	POS3=$((POS2+39))
+	(($COLS>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PVM ; }
+}
+
 GERACOR() {
 	local cnt=$((1+RANDOM%31));local atb=$((RANDOM%2));
 	CSM="\e["$atb";38;5;"$cnt"m"
@@ -60,25 +80,30 @@ GERACOR() {
 MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 
 LISTAR() {
-        virsh list --all
-		exit 0
+	tput clear
+
+	virsh list --all
+
 PCM
 }
 
 INICIAR() {
-		    virsh list --all
-        exit 0
-
-		echo -e "Nome da vm que deseja iniciar: \n"
+	tput clear 
+	virsh list --all
+	echo -e "Nome da vm que deseja iniciar: \n"
 		read in_name
-		virsh start $in_name
-
+	if virsh list --all | grep '$in_name' 
+	then
+		virsh start $in_name \
+		&& ok \
+		|| die "Não foi possivel startar a maquina virtual"
+	fi
 PCM
 }
 
 PAUSAR() {
-		    virsh list --all
-        exit 0
+	tput clear
+			virsh list --all
 
 		echo -e "Nome da vm que deseja pausar/desligar: \n"
 		read st_name
@@ -93,28 +118,22 @@ DELETAR() {
 PCM
 }
 
-PMENU
+#PMENU
 
-PVM() 
-{
-#GERACOR;
-COLS;
-}
-
-VM(){
+VM() {
 	tput clear
 	printf "${CE}\e[2;${POS2}f----------------------------------------"
 	printf "\e[3;${POS1}f-------------- MENU IMPORTAÇÃO --------------"
 	printf "\e[4;${POS}f---\e[4;${POS3}f---"
-	printf "\e[5;${POS}f---${CSM}    [1] Debian 7        [2] Debian 9  ${CE}---"
-	printf "\e[6;${POS}f---${CSM}    [3] Win.Server 2008 [4] Win 2007  ${CE}---"
-	printf "\e[7;${POS}f---${CSM}    [5] Win.Server 2012 [6] Win 2010  ${CE}---"
-	printf "\e[8;${POS}f---${CSM}    [7] Kali            [8] Debian 8  ${CE}---"
-	printf "\e[9;${POS}f---${CSM}              [9] Cancelar            ${CE}---"
-	printf "\e[10;${POS}f---\e[10;${POS3}f---"
+	printf "\e[4;${POS}f---${CSM}    [1] Debian 7        [2] Debian 9  ${CE}---"
+	printf "\e[5;${POS}f---${CSM}    [3] Win.Server 2008 [4] Win 2007  ${CE}---"
+	printf "\e[6;${POS}f---${CSM}    [5] Win.Server 2012 [6] Win 2010  ${CE}---"
+	printf "\e[7;${POS}f---${CSM}    [7] Kali            [8] Debian 8  ${CE}---"
+	printf "\e[8;${POS}f---${CSM}              [9] Cancelar            ${CE}---"
+	printf "\e[9;${POS}f---\e[10;${POS3}f---"
 
-	printf "${CE}\e[11;${POS1}f------------------------------------------"
-	printf "\e[12;${POS2}f----------------------------------------\n\n"$FC""
+	printf "${CE}\e[10;${POS1}f------------------------------------------"
+	printf "\e[11;${POS2}f----------------------------------------\n\n"$FC""
 	read -p " OPÇãO: " -n1 OPCVM
 
 	case "$OPCVM" in
@@ -131,13 +150,10 @@ VM(){
 	esac
 }
 
-	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-	
-        NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
-
 Debian7(){
 	echo -e "Nome da maquina virtual: \n"
 	read name
+	#if [ -f "" ]
 	CI_ISO=$NAME-cidata.iso
 	echo -e "Tamanho do HD (Máximo = 50 Gb): \n"
 	read tamanho
@@ -146,11 +162,15 @@ Debian7(){
 	else
 		echo -e "Informe um tamanho valido"
 	fi
-	echo -e "Tamanho da maquina virtual (Máximo = 3Gb ou 3076 B): \n"
-	read memory
+	echo -e "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ): \n"
+	read memory && memory =>0 || memory =<3076
 	echo -e "Quantidade de Cpu: \n"
 	read vcpus
+
+	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 	
+    NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
 
 }
@@ -263,3 +283,5 @@ virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --
 #			${WGET} --directory-prefix ${IMAGEDIR} ${IMAGE_URL}/${QCOW} || \
 #				die "Could not download image."
 #		fi
+
+PMENU
