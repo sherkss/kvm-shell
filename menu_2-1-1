@@ -150,22 +150,107 @@ VM() {
 	esac
 }
 
+MSGC() { echo -e "$CVA\n\n \" OPÇÃO INVÁLIDA! \" $FC" ; sleep 0.25 ; }
+
 Debian7(){
-	echo -e "Nome da maquina virtual: \n"
-	read name
-	#if [ -f "" ]
+	tput clear
+#	echo -e "Nome da maquina virtual: \n"
+#	read name
+
+	read -p "Nome da maquina virtual: \n" name
+
 	CI_ISO=$NAME-cidata.iso
-	echo -e "Tamanho do HD (Máximo = 50 Gb): \n"
-	read tamanho
-	if [ $tamanho >0; $tamanho =<50 ];then
-		qemu-img create $name.iso -f qcow2 $tamanho
-	else
-		echo -e "Informe um tamanho valido"
-	fi
-	echo -e "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ): \n"
-	read memory && memory =>0 || memory =<3076
-	echo -e "Quantidade de Cpu: \n"
-	read vcpus
+	read -p "Tamanho do HD (Máximo = 50 Gb):" tamanho
+
+#	Erro aqui :(
+#	test $tamanho > 0 && $tamanho =< 50
+	while [ test $tamanho > 0 && $tamanho =< 50 ];
+	do
+		echo -e "O valor de memoria definida é de $tamanho \n"
+		read -p "Confirmar? [S/n]" acao
+
+		while true
+		do
+			case "$acao" in
+				"s")
+					echo ""
+					break
+				;;
+				"n")
+					echo ""
+					break
+				;;
+				*)
+					MSGC ;break;;
+			esac
+		done
+
+
+	done
+
+#	echo -e "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ): \n"
+	read -p "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ):" memory
+
+	while test $memory > 0 && $memory =< 3076
+	do
+		echo -e "O valor de memoria definida é de $memory \n"
+		read -p "Confirmar? [S/n]" acao
+
+		while true
+		do
+			case "$acao" in
+				"s")
+					echo ""
+					break
+				;;
+				"n")
+					echo ""
+					break
+				;;
+				*)
+					MSGC ;break;;
+	
+			esac
+		done
+
+	done
+
+
+	read -p "Quantidade de Cpu:" vcpus
+
+	while [ test $vcpus != '' ]
+	do
+		echo -e "O valor quantide de Cpu definida é $vcpus \n"
+		read -p "Confirmar? [S/n]" acao
+
+		while true
+		do
+			case "$acao" in
+				"s")
+					echo ""
+					break
+				;;
+				"S")
+					echo ""
+					break
+				;;				
+				"n")
+					echo ""
+					break
+				;;
+				"N")
+					echo ""
+					break
+				;;
+				*)
+				MSGC ;break;;
+
+			esac
+		done
+
+	done
+
+# ERROU FEIO SUHSHUHUS
 
 	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 	
@@ -173,6 +258,7 @@ Debian7(){
 
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
 
+PMENU
 }
 
 
@@ -283,5 +369,4 @@ virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --
 #			${WGET} --directory-prefix ${IMAGEDIR} ${IMAGE_URL}/${QCOW} || \
 #				die "Could not download image."
 #		fi
-
 PMENU
