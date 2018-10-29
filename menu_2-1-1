@@ -1,11 +1,17 @@
 #!/bin/bash
 PCM(){ PROMPT ;clear; PMENU;}
-PVM(){ PROMPT ;clear; PVM;}
+PVM(){ PROMPTVM ;clear; PVM;}
 
 PROMPT()
 { printf "${CE}\e[18;$(( ($(tput cols)-46 )/2+1))f<< PRESSIONE QUALQUER TECLA  PARA CONTINUAR >>${FC}";
 read -e -n1 PRMPT ;
 local PRMPT ;
+}
+
+PROMPTVM()
+{ printf "${CE}\e[18;$(( ($(tput cols)-46 )/2+1))f<< PRESSIONE QUALQUER TECLA  PARA CONTINUAR >>${FC}";
+read -e -n1 PRMPTVM ;
+local PRMPTVM ;
 }
 
 PMENU() 
@@ -63,14 +69,14 @@ COLS() {
 	(($COLS>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PCM ; }
 }
 
-COLS() {
-	COLS=$(tput cols)
-	POS=$(((COLS-44)/2+1))
-	POS1=$((POS+1))
-	POS2=$((POS+2))
-	POS3=$((POS2+39))
-	(($COLS>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PVM ; }
-}
+#COLSVM() {
+#	COLSVM=$(tput cols)
+#	POSVM=$(((COLSVM-44)/2+1))
+#	POSVM1=$((POSVM+1))
+#	POSVM2=$((POSVM+2))
+#	POSVM3=$((POSVM2+39))
+#	(($COLSVM>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PVM ; }
+#}
 
 GERACOR() {
 	local cnt=$((1+RANDOM%31));local atb=$((RANDOM%2));
@@ -157,26 +163,37 @@ Debian7(){
 #	echo -e "Nome da maquina virtual: \n"
 #	read name
 
-	read -p "Nome da maquina virtual: \n" name
+	read -p "Nome da maquina virtual:" name
 
-	CI_ISO=$NAME-cidata.iso
+#	CI_ISO=$NAME-cidata.iso
 	read -p "Tamanho do HD (Máximo = 50 Gb):" tamanho
 
 #	Erro aqui :(
 #	test $tamanho > 0 && $tamanho =< 50
-	while [ test $tamanho > 0 && $tamanho =< 50 ];
+	while [ $tamanho -ge 1 ] && [ $tamanho -le 50 ]; #[ test $tamanho > 0 && $tamanho =< 50 ];
 	do
 		echo -e "O valor de memoria definida é de $tamanho \n"
-		read -p "Confirmar? [S/n]" acao
 
 		while true
 		do
-			case "$acao" in
+		read -p "Confirmar? [S/n]" acaot
+
+#		while true
+#		do
+			case "$acaot" in
 				"s")
 					echo ""
 					break
 				;;
 				"n")
+					echo ""
+					break
+				;;
+				"S")
+					echo ""
+					break
+				;;
+				"N")
 					echo ""
 					break
 				;;
@@ -191,14 +208,18 @@ Debian7(){
 #	echo -e "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ): \n"
 	read -p "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ):" memory
 
-	while test $memory > 0 && $memory =< 3076
+	while [ $memory -ge 1 ] && [ $memory -le 3076 ];  #test $memory > 0 && $memory =< 3076
 	do
-		echo -e "O valor de memoria definida é de $memory \n"
-		read -p "Confirmar? [S/n]" acao
+		echo -e "O valor de memoria definida é de $memory"
 
 		while true
 		do
-			case "$acao" in
+
+		read -p "Confirmar? [S/n]" acaom
+
+#		while true
+#		do
+			case "$acaom" in
 				"s")
 					echo ""
 					break
@@ -207,25 +228,34 @@ Debian7(){
 					echo ""
 					break
 				;;
+				"N")
+					echo ""
+					break
+				;;
+				"S")
+					echo ""
+					break
+				;;
 				*)
 					MSGC ;break;;
 	
 			esac
 		done
-
 	done
 
 
-	read -p "Quantidade de Cpu:" vcpus
+	read -p "Quantidade de Cpu: (1 ou 2)" vcpus
 
-	while [ test $vcpus != '' ]
+	while [ $vcpus -ge 1 ] && [ $VAR -le 2 ]; #[ test $vcpus != '' ]
 	do
 		echo -e "O valor quantide de Cpu definida é $vcpus \n"
-		read -p "Confirmar? [S/n]" acao
-
 		while true
 		do
-			case "$acao" in
+		read -p "Confirmar? [S/n]" acaovc
+
+#		while true
+#		do
+			case "$acaovc" in
 				"s")
 					echo ""
 					break
@@ -233,7 +263,7 @@ Debian7(){
 				"S")
 					echo ""
 					break
-				;;				
+				;;
 				"n")
 					echo ""
 					break
@@ -253,7 +283,7 @@ Debian7(){
 # ERROU FEIO SUHSHUHUS
 
 	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-	
+
     NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
@@ -370,3 +400,4 @@ PMENU
 #				die "Could not download image."
 #		fi
 PMENU
+
