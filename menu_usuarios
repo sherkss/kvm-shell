@@ -57,15 +57,16 @@ MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 FUNCAO_01() {
 	tput clear;
 
-	printf "\n";printf "Adicionar usuário: \n"
+#	printf "\n";printf "Adicionar usuário: \n"
 
-	read addusuario
+	read -p "Nome do novo usúario:" addusuario
+#	read addusuario
 	test $addusuario
 
 	if [ $? != "1" ];
 		then
 		useradd $addusuario
-
+		
 		if [ $? != "1"]
 		passwd $addusuario
 		usermod --shell /bin/bash $addusuario
@@ -94,8 +95,9 @@ FUNCAO_03() {
 	tput clear ;
 
 	echo "Deletar usuário: " ;
+	read -p "Nome do usúario que deseja deletar:" delusuario
 
-	read delusuario;
+#	read delusuario;
 	
 	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep "${delusuario}" ;
 
@@ -112,7 +114,8 @@ FUNCAO_03() {
 FUNCAO_04() {
 	tput clear ;
 
-	echo "Nome do usuario:"
+#	echo "Nome do usuario:"
+	read -p "Nome do usúario que deseja mudar a senha:" senha_usuario
 
 	read senha_usuario
 	
@@ -121,8 +124,10 @@ FUNCAO_04() {
 	if [ $? != "1" ];
 	then
 		passwd $senha_usuario ;
+	else
+	echo -e "Usuario $senha_usuario não existe."
 	fi
-	
+
 	sleep 0.5;
 	PCM
 }
