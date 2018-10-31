@@ -87,7 +87,6 @@ MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 
 LISTAR() {
 	tput clear
-
 	virsh list --all
 
 PCM
@@ -166,120 +165,124 @@ Debian7(){
 	read -p "Nome da maquina virtual:" name
 
 #	CI_ISO=$NAME-cidata.iso
-	read -p "Tamanho do HD (Máximo = 50 Gb):" tamanho
+#	read -p "Tamanho do HD (Máximo = 50 Gb):" tamanho
 
+	read -p "TAMANHO: " tamanho;
+	(($tamanho>0 && $tamanho<=50)) && echo OKAY || echo "Tamanho inválido" 
+	Testando "tamanho:"
+	for tamanho in {0..55};do
+	(($tamanho>0 && $tamanho<=50)) && echo $tamanho OKAY || echo "$tam NOKAY" ;
+	done
+	
 #	Erro aqui :(
 #	test $tamanho > 0 && $tamanho =< 50
-	while [ $tamanho -ge 1 ] && [ $tamanho -le 50 ]; #[ test $tamanho > 0 && $tamanho =< 50 ];
-	do
-		echo -e "O valor de memoria definida é de $tamanho \n"
-
-		while true
-		do
-		read -p "Confirmar? [S/n]" acaot
-
+#	while [ $tamanho -ge 1 ] && [ $tamanho -le 50 ] ; # [ test $tamanho > 0 && $tamanho =< 50 ];
+#	do
+#		echo -e "O valor de memoria definida é de $tamanho \n"
+#
 #		while true
 #		do
-			case "$acaot" in
-				"s")
-					echo ""
-					break
-				;;
-				"n")
-					echo ""
-					break
-				;;
-				"S")
-					echo ""
-					break
-				;;
-				"N")
-					echo ""
-					break
-				;;
-				*)
-					MSGC ;break;;
-			esac
-		done
-
-
-	done
-
+#		read -p "Confirmar? [S/n]" acaot
+#
+#		while true
+#		do
+#			case "$acaot" in
+#				"s")
+#					echo ""
+#					break
+#				;;
+#				"n")
+#					echo ""
+#					break
+#				;;
+#				"S")
+#					echo ""
+#					break
+#				;;
+#				"N")
+#					echo ""
+#					break
+#				;;
+#				*)
+#					MSGC ;break;;
+#			esac
+#		done
+#	done
+#
 #	echo -e "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ): \n"
 	read -p "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ):" memory
 
-	while [ $memory -ge 1 ] && [ $memory -le 3076 ];  #test $memory > 0 && $memory =< 3076
-	do
-		echo -e "O valor de memoria definida é de $memory"
-
-		while true
-		do
-
-		read -p "Confirmar? [S/n]" acaom
-
+#	while [ $memory -ge 1 ] && [ $memory -le 3076 ];  #test $memory > 0 && $memory =< 3076
+#	do
+#		echo -e "O valor de memoria definida é de $memory"
+#
 #		while true
 #		do
-			case "$acaom" in
-				"s")
-					echo ""
-					break
-				;;
-				"n")
-					echo ""
-					break
-				;;
-				"N")
-					echo ""
-					break
-				;;
-				"S")
-					echo ""
-					break
-				;;
-				*)
-					MSGC ;break;;
-	
-			esac
-		done
-	done
-
+#
+#		read -p "Confirmar? [S/n]" acaom
+#
+#		while true
+#		do
+#			case "$acaom" in
+#				"s")
+#					echo ""
+#					break
+#				;;
+#				"n")
+#					echo ""
+#					break
+#				;;
+#				"N")
+#					echo ""
+#					break
+#				;;
+#				"S")
+#					echo ""
+#					break
+#				;;
+#				*)
+#					MSGC ;break;;
+#	
+#			esac
+#		done
+#	done
 
 	read -p "Quantidade de Cpu: (1 ou 2)" vcpus
 
-	while [ $vcpus -ge 1 ] && [ $VAR -le 2 ]; #[ test $vcpus != '' ]
-	do
-		echo -e "O valor quantide de Cpu definida é $vcpus \n"
-		while true
-		do
-		read -p "Confirmar? [S/n]" acaovc
-
+#	while [ $vcpus -ge 1 ] && [ $VAR -le 2 ]; #[ test $vcpus != '' ]
+#	do
+#		echo -e "O valor quantide de Cpu definida é $vcpus \n"
 #		while true
 #		do
-			case "$acaovc" in
-				"s")
-					echo ""
-					break
-				;;
-				"S")
-					echo ""
-					break
-				;;
-				"n")
-					echo ""
-					break
-				;;
-				"N")
-					echo ""
-					break
-				;;
-				*)
-				MSGC ;break;;
-
-			esac
-		done
-
-	done
-
+#		read -p "Confirmar? [S/n]" acaovc
+#
+#		while true
+#		do
+#			case "$acaovc" in
+#				"s")
+#					echo ""
+#					break
+#				;;
+#				"S")
+#					echo ""
+#					break
+#				;;
+#				"n")
+#					echo ""
+#					break
+#				;;
+#				"N")
+#					echo ""
+#					break
+#				;;
+#				*)
+#				MSGC ;break;;
+#
+#			esac
+#		done
+#
+#	done
+#
 # ERROU FEIO SUHSHUHUS
 
 	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
@@ -288,7 +291,6 @@ Debian7(){
 
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
 
-PMENU
 }
 
 
