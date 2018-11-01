@@ -127,7 +127,6 @@ PAUSAR() {
 PCM
 }
 
-
 DELETAR() {
 
 PCM
@@ -172,7 +171,6 @@ Debian7(){
 #	echo -e "Nome da maquina virtual: \n"
 #	read name
 
-
 	read -p "Nome da maquina virtual:" name
 
 # 	CI_ISO=$NAME-cidata.iso
@@ -208,17 +206,14 @@ while [ ![$CPU -gt 0 -a $CPU -le $MAX_RAM] ]; do
 	fi
 done
 
-
 	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-
-    NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+	
+	NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
 
 PVM
 }
-
-
 
 #	debian9base=
 #	EXT=qcow2
@@ -301,7 +296,4 @@ PVM
 #			else
 #				die "Target ${TARGET} is already created or in use."
 #			fi
-#
-#
-#		IMAGE=${IMAGEDIR}/${QCOW}
 PMENU
