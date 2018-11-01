@@ -215,6 +215,7 @@ done
 
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
 
+PVM
 }
 
 
