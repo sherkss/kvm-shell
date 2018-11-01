@@ -2,10 +2,12 @@
 
 # Define O tamanho maximo de HD Virtual: (em GB)
 MAX_HD = 50
+
+# Define o tamanho maximo de memoria ram: (em MB)
 MAX_RAM = 2048
+
+# Define o tamanho máximo de CPU
 MAX_CPU = 2
-
-
 
 PCM(){ PROMPT ;clear; PMENU;}
 PVM(){ PROMPTVM ;clear; PVM;}
@@ -173,19 +175,39 @@ Debian7(){
 
 	read -p "Nome da maquina virtual:" name
 
-CI_ISO=$NAME-cidata.iso
+# 	CI_ISO=$NAME-cidata.iso
 #	read -p "Tamanho do HD (Máximo = 50 Gb):" tamanho
 
 # solicita tamanho do disco virtual.
+
+$tamanho = 999999
+while [ ![$tamanho -gt 0 -a $tamanho -le $MAX_HD] ]; do
 	read -p "Tamanho do disco: " tamanho
-	if [ $tamanho -gt 0 ] && [ $tamanho -le 50];
-	then
-		
+	if [ ![$tamanho -gt 0 -a $tamanho -le $MAX_HD] ]; then
+		echo -e "Tamanho inválido! (0 ~ $MAX_HD GB)"
 	fi
+done
 
-	read -p "Tamanho da maquina virtual ( Máximo = 3Gb ou 3076B ):" memory
+# Solicita tamanho da ram.
 
-	read -p "Quantidade de Cpu: (1 ou 2)" vcpus
+$memoria = 999999
+while [ ![$memoria -gt 0 -a $memoria -le $MAX_RAM] ]; do
+	read -p "Tamanho da maquina virtual (0 ~ $MAX_RAM B):" memoria
+	if [ ![$memoria -gt 0 -a $memoria -le $MAX_RAM] ]; then
+		echo -e "Tamanho inválido! (0 ~ $MAX_RAM B)"
+	fi
+done
+
+# Solicitar quantidade de CPU
+$CPU = 9999
+while [ ![$CPU -gt 0 -a $CPU -le $MAX_RAM] ]; do
+	read -p "Quantidade de Cpu ():" CPU
+	read -p "Tamanho da maquina virtual (1 ~ $MAX_CPU):" CPU
+	if [ ![$memoria -gt 0 -a $memoria -le $MAX_CPU] ]; then
+		echo -e "Tamanho inválido! (1 ~ $MAX_CPU)"
+	fi
+done
+
 
 	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 
