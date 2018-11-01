@@ -200,7 +200,6 @@ done
 $CPU = 9999
 while [ ![$CPU -gt 0 -a $CPU -le $MAX_RAM] ]; do
 	read -p "Quantidade de Cpu ():" CPU
-	read -p "Tamanho da maquina virtual (1 ~ $MAX_CPU):" CPU
 	if [ ![$memoria -gt 0 -a $memoria -le $MAX_CPU] ]; then
 		echo -e "Tamanho inválido! (1 ~ $MAX_CPU)"
 	fi
