@@ -23,8 +23,8 @@ local PRMPT ;
 
 PROMPTVM()
 { printf "${CE}\e[18;$(( ($(tput cols)-46 )/2+1))f<< PRESSIONE QUALQUER TECLA  PARA CONTINUAR >>${FC}";
-read -e -n1 PRMPTVM ;
-local PRMPTVM ;
+read -e -n1 PRMPT ;
+local PRMPT ;
 }
 
 PMENU() 
@@ -71,7 +71,6 @@ MENU() {
 	*) MSGM ; PMENU ;;
 	esac
 }
-
 
 COLS() {
 	COLS=$(tput cols)
@@ -134,8 +133,6 @@ DELETAR() {
 
 PCM
 }
-
-#PMENU
 
 VM() {
 	tput clear
