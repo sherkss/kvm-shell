@@ -81,19 +81,19 @@ COLS() {
 	(($COLS>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PCM ; }
 }
 
-#COLSVM() {
-#	COLSVM=$(tput cols)
-#	POSVM=$(((COLSVM-44)/2+1))
-#	POSVM1=$((POSVM+1))
-#	POSVM2=$((POSVM+2))
-#	POSVM3=$((POSVM2+39))
-#	(($COLSVM>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PVM ; }
-#}
+# COLSVM() {
+# 	COLSVM=$(tput cols)
+# 	POSVM=$(((COLSVM-44)/2+1))
+# 	POSVM1=$((POSVM+1))
+# 	POSVM2=$((POSVM+2))
+# 	POSVM3=$((POSVM2+39))
+# 	(($COLSVM>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PVM ; }
+# }
 
-GERACOR() {
-	local cnt=$((1+RANDOM%31));local atb=$((RANDOM%2));
-	CSM="\e["$atb";38;5;"$cnt"m"
-}
+# GERACOR() {
+# 	local cnt=$((1+RANDOM%31));local atb=$((RANDOM%2));
+# 	CSM="\e["$atb";38;5;"$cnt"m"
+# }
 
 MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 
