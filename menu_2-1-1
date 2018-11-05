@@ -8,7 +8,7 @@ $MIN_HD = 0
 $MAX_RAM = 2048
 $MIN_RAM = 0
 
-# Define o tamanho máximo de CPU
+# Define o tamanho máximo e minimo de CPU
 $MAX_CPU = 2
 $MIN_CPU = 1
 
@@ -171,8 +171,6 @@ MSGC() { echo -e "$CVA\n\n \" OPÇÃO INVÁLIDA! \" $FC" ; sleep 0.25 ; }
 
 Debian7(){
 	tput clear
-#	echo -e "Nome da maquina virtual: \n"
-#	read name
 
 	read -p "Nome da maquina virtual:" name
 
@@ -214,7 +212,7 @@ done
 
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
 
-PVM
+PCM
 }
 
 #	debian9base=
