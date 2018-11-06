@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # Define o tamanho maximo e minimo de HD Virtual: (em GB)
-$MAX_HD = 50
-$MIN_HD = 0
+$MAX_HD = 50	# Apenas números
+$MIN_HD = 0		# Apenas números
 
 # Define o tamanho maximo e minimo de memoria ram: (em MB)
-$MAX_RAM = 2048
-$MIN_RAM = 0
+$MAX_RAM = 2048	# Apenas números
+$MIN_RAM = 0	# Apenas números
 
 # Define o tamanho máximo e minimo de CPU
-$MAX_CPU = 2
-$MIN_CPU = 1
+$MAX_CPU = 2	# Apenas números
+$MIN_CPU = 1	# Apenas números
 
 PCM(){ PROMPT ;clear; PMENU;}
 PVM(){ PROMPTVM ;clear; PVM;}
@@ -33,16 +33,16 @@ PMENU()
 COLS;
 }
 
-bold() { echo -e "\e[1m$@\e[0m" ; }
-red() { echo -e "\e[31m$@\e[0m" ; }
-green() { echo -e "\e[32m$@\e[0m" ; }
-yellow() { echo -e "\e[33m$@\e[0m" ; }
+# bold() { echo -e "\e[1m$@\e[0m" ; }
+# red() { echo -e "\e[31m$@\e[0m" ; }
+# green() { echo -e "\e[32m$@\e[0m" ; }
+# yellow() { echo -e "\e[33m$@\e[0m" ; }
 
-die() { red "ERR: $@" >&2 ; exit 2 ; }
-silent() { "$@" > /dev/null 2>&1 ; }
-output() { echo -e "- $@" ; }
-outputn() { echo -en "- $@ ... " ; }
-ok() { green "${@:-OK}" ; }
+# die() { red "ERR: $@" >&2 ; exit 2 ; }
+# silent() { "$@" > /dev/null 2>&1 ; }
+# output() { echo -e "- $@" ; }
+# outputn() { echo -en "- $@ ... " ; }
+# ok() { green "${@:-OK}" ; }
 
 MENU() {
 	tput clear
@@ -176,10 +176,10 @@ Debian7(){
 # solicita tamanho do disco virtual.
 $tamanho = 999999
 
-while [ ![$tamanho -gt 0 -a $tamanho -le $MAX_HD] ]; do
+while [ ![$tamanho -gt $MIN_HD -a $tamanho -le $MAX_HD] ]; do
 	read -p "Tamanho do disco: " tamanho
-	if [ ![$tamanho -gt 0 -a $tamanho -le $MAX_HD] ]; then
-		echo -e "Tamanho inválido! (0 ~ $MAX_HD GB)"
+	if [ ![$tamanho -gt $MIN_HD -a $tamanho -le $MAX_HD] ]; then
+		echo -e "Tamanho inválido! ($MIN_HD ~ $MAX_HD GB)"
 	fi
 done
 
