@@ -1,16 +1,21 @@
 #!/bin/bash
 
 # Define o tamanho maximo e minimo de HD Virtual: (em GB)
-$MAX_HD = 50	# Apenas números
-$MIN_HD = 0		# Apenas números
+MAX_HD=50	# Apenas números
+MIN_HD=1		# Apenas números
 
 # Define o tamanho maximo e minimo de memoria ram: (em MB)
-$MAX_RAM = 2048	# Apenas números
-$MIN_RAM = 0	# Apenas números
+MAX_RAM=2048	# Apenas números
+MIN_RAM=1	# Apenas números
 
 # Define o tamanho máximo e minimo de CPU
-$MAX_CPU = 2	# Apenas números
-$MIN_CPU = 1	# Apenas números
+MAX_CPU=2	# Apenas números
+MIN_CPU=1	# Apenas números
+
+#Valores predefinido para funcionar no while
+cpu=999999
+tamanho=999999
+memoria=999999
 
 PCM(){ PROMPT ;clear; PMENU;}
 PVM(){ PROMPTVM ;clear; PVM;}
@@ -107,8 +112,9 @@ PCM
 INICIAR() {
 	tput clear 
 	virsh list --all
-	echo -e "Nome da vm que deseja iniciar: \n"
-		read in_name
+
+	read -p "Nome da vm que deseja iniciar:" in_name
+	
 	if virsh list --all | grep '$in_name' 
 	then
 		virsh start $in_name \
@@ -120,13 +126,11 @@ PCM
 
 PAUSAR() {
 	tput clear
-			virsh list --all
+		virsh list --all
 
-		echo -e "Nome da vm que deseja pausar/desligar: \n"
-		read st_name
+		read -p "Nome da vm que deseja pausar/desligar: " st_name
 		virsh shutdown $st_name
-
-PCM
+	PCM
 }
 
 DELETAR() {
@@ -169,49 +173,58 @@ MSGC() { echo -e "$CVA\n\n \" OPÇÃO INVÁLIDA! \" $FC" ; sleep 0.25 ; }
 Debian7(){
 	tput clear
 
+format=qcow2
+
 	read -p "Nome da maquina virtual:" name
 
 # 	CI_ISO=$NAME-cidata.iso
 
 # solicita tamanho do disco virtual.
-$tamanho = 999999
 
-while [ ^[$tamanho -gt $MIN_HD -a $tamanho -le $MAX_HD] ]; do
-	read -p "Tamanho do disco: " tamanho
-	if [ ![$tamanho -gt $MIN_HD -a $tamanho -le $MAX_HD] ]; then
+# tamanho=999999
+
+while [ $tamanho -lt $MIN_HD -o $tamanho -ge $MAX_HD ]; do
+	read -p "Tamanho do disco: ($MIN_HD ~ $MAX_HD GB)" tamanho
+	if [ $tamanho -lt $MIN_HD -o $tamanho -ge $MAX_HD ]; then
 		echo -e "Tamanho inválido! ($MIN_HD ~ $MAX_HD GB)"
 	fi
 done
 
 # Solicita tamanho da ram.
-$memoria = 999999
 
-while [ ![$memoria -gt $MIN_RAM -a $memoria -le $MAX_RAM] ]; do
+# memoria=999999
+
+while [ $memoria -lt $MIN_RAM -o $memoria -ge $MAX_RAM ]; do
 	read -p "Tamanho da maquina virtual ($MIN_RAM ~ $MAX_RAM B):" memoria
-	if [ ![$memoria -gt $MIN_RAM -a $memoria -le $MAX_RAM] ]; then
+	if [ $memoria -gt $MIN_RAM -o $memoria -le $MAX_RAM ]; then
 		echo -e "Tamanho inválido! ($MIN_RAM ~ $MAX_RAM B)"
 	fi
 done
 
-# Solicitar quantidade de CPU
-$CPU = 9999
+# Solicitar quantidade de CPU.
 
-while [ ![$CPU -gt $MIN_CUP -a $CPU -le $MAX_CUP] ]; do
+# cpu=99999999
+
+while [ $cpu -le $MIN_CUP -o $cpu -ge $MAX_CUP ]; do
 	read -p "Quantidade de Cpu ():" CPU
-	if [ ![$memoria -gt $MIN_CUP -a $memoria -le $MAX_CPU] ]; then
+	if [ $cpu -lt $MIN_CUP -o $cpu -ge $MAX_CPU ]; then
 		echo -e "Tamanho inválido! ($MIN_CUP ~ $MAX_CPU)"
 	fi
 done
 
-	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-	
-	NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+#Criando disco da maquina.
 
-virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=qcow2,bus=virtio --disk ${CI_ISO},device=cdrom --network ${NETWORK_PARAMS} --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
+create_img=$name.$format
+qemu-img create -f $format $create_img $tamanhoG
+disk=$create_img
+ 
+#	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+	
+#	NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=$format,bus=virtio --disk ,device=cdrom --network $NETWORK_PARAMS --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
 
 PCM
 }
-
-PVM
 
 PMENU
