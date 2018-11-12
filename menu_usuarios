@@ -57,10 +57,7 @@ MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 FUNCAO_01() {
 	tput clear;
 
-#	printf "\n";printf "Adicionar usuário: \n"
-
 	read -p "Nome do novo usúario:" addusuario
-#	read addusuario
 	test $addusuario
 
 	if [ $? != "1" ];
@@ -70,6 +67,8 @@ FUNCAO_01() {
 		if [ $? != "1"]
 		passwd $addusuario
 		usermod --shell /bin/bash $addusuario
+		adduser $addusuario libvirt-qemu
+		adduser $addusuario libvirt
 	fi
 	
 	sleep 0.5	
@@ -116,8 +115,6 @@ FUNCAO_04() {
 
 #	echo "Nome do usuario:"
 	read -p "Nome do usúario que deseja mudar a senha:" senha_usuario
-
-	read senha_usuario
 	
 	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep "${senha_usuario}" ;
 	
