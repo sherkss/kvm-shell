@@ -1,25 +1,5 @@
 #!/bin/bash
 
-<<<<<<< HEAD
-=======
-# Define o tamanho maximo e minimo de HD Virtual: (em GB)
-MAX_HD=50	# Apenas números
-MIN_HD=1		# Apenas números
-
-# Define o tamanho maximo e minimo de memoria ram: (em MB)
-MAX_RAM=2048	# Apenas números
-MIN_RAM=1	# Apenas números
-
-# Define o tamanho máximo e minimo de CPU
-MAX_CPU=2	# Apenas números
-MIN_CPU=1	# Apenas números
-
-#Valores predefinido para funcionar no while
-cpu=999999
-tamanho=999999
-memoria=999999
-
->>>>>>> master
 PCM(){ PROMPT ;clear; PMENU;}
 PVM(){ PROMPTVM ;clear; PVM;}
 
@@ -105,15 +85,9 @@ INICIAR() {
 	tput clear 
 	virsh list --all
 
-<<<<<<< HEAD
 	read -p "Nome da vm que deseja iniciar:" IN_NAME
 	
 	if virsh list --all | grep '$IN_NAME' 
-=======
-	read -p "Nome da vm que deseja iniciar:" in_name
-	
-	if virsh list --all | grep '$in_name' 
->>>>>>> master
 	then
 		virsh start $IN_NAME
 	fi
@@ -124,15 +98,9 @@ PAUSAR() {
 	tput clear
 		virsh list --all
 
-<<<<<<< HEAD
 		read -p "Nome da vm que deseja pausar/desligar: " ST_NAME
 		virsh shutdown $ST_NAME
 		PCM
-=======
-		read -p "Nome da vm que deseja pausar/desligar: " st_name
-		virsh shutdown $st_name
-	PCM
->>>>>>> master
 }
 
 DELETAR() {
@@ -453,7 +421,6 @@ MSGC() { echo -e "$CVA\n\n \" OPÇÃO INVÁLIDA! \" $FC" ; sleep 0.25 ; }
 WINXP(){
 	tput clear
 
-<<<<<<< HEAD
 # Definição do virt-install
 
 TIPO=
@@ -486,16 +453,10 @@ READ 1 50 DISCO
 
 # TAMANHO da ram.
 READ 1 3 MEMORIA
-=======
-format=qcow2
-
-	read -p "Nome da maquina virtual:" name
->>>>>>> master
 
 # Quantidade de CPU
 READ 1 2 CPU
 
-<<<<<<< HEAD
 tput clear
 
 echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
@@ -540,16 +501,6 @@ read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
 	eval $3=$REPLY;	break
 	else
 	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
-=======
-# solicita tamanho do disco virtual.
-
-# tamanho=999999
-
-while [ $tamanho -lt $MIN_HD -o $tamanho -ge $MAX_HD ]; do
-	read -p "Tamanho do disco: ($MIN_HD ~ $MAX_HD GB)" tamanho
-	if [ $tamanho -lt $MIN_HD -o $tamanho -ge $MAX_HD ]; then
-		echo -e "Tamanho inválido! ($MIN_HD ~ $MAX_HD GB)"
->>>>>>> master
 	fi
 done
 }
@@ -557,7 +508,6 @@ done
 # TAMANHO do disco virtual.
 READ 1 50 DISCO
 
-<<<<<<< HEAD
 # TAMANHO da ram.
 READ 1 3 MEMORIA
 
@@ -608,16 +558,6 @@ read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
 	eval $3=$REPLY;	break
 	else
 	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
-=======
-# Solicita tamanho da ram.
-
-# memoria=999999
-
-while [ $memoria -lt $MIN_RAM -o $memoria -ge $MAX_RAM ]; do
-	read -p "Tamanho da maquina virtual ($MIN_RAM ~ $MAX_RAM B):" memoria
-	if [ $memoria -gt $MIN_RAM -o $memoria -le $MAX_RAM ]; then
-		echo -e "Tamanho inválido! ($MIN_RAM ~ $MAX_RAM B)"
->>>>>>> master
 	fi
 done
 }
@@ -635,7 +575,6 @@ tput clear
 
 echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
 
-<<<<<<< HEAD
 #Criando disco da maquina.
 
 CREATE_IMG=$NAME.$FORMATO
@@ -677,21 +616,10 @@ read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
 	eval $3=$REPLY;	break
 	else
 	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
-=======
-# Solicitar quantidade de CPU.
-
-# cpu=99999999
-
-while [ $cpu -le $MIN_CUP -o $cpu -ge $MAX_CUP ]; do
-	read -p "Quantidade de Cpu ():" CPU
-	if [ $cpu -lt $MIN_CUP -o $cpu -ge $MAX_CPU ]; then
-		echo -e "Tamanho inválido! ($MIN_CUP ~ $MAX_CPU)"
->>>>>>> master
 	fi
 done
 }
 
-<<<<<<< HEAD
 # TAMANHO do disco virtual.
 READ 1 50 DISCO
 
@@ -714,25 +642,11 @@ DISCO_CRIADO=$CREATE_IMG
 # Comando Virt-install para instalar uma nova maquina virtual.
 
 virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
-=======
-#Criando disco da maquina.
-
-create_img=$name.$format
-qemu-img create -f $format $create_img $tamanhoG
-disk=$create_img
- 
-#	MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-	
-#	NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
-
-virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=$format,bus=virtio --disk ,device=cdrom --network $NETWORK_PARAMS --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
->>>>>>> master
 
 sleep 0.5
 PCM
 }
 
-<<<<<<< HEAD
 WINSERVER08(){
 	tput clear
 
@@ -847,6 +761,4 @@ sleep 0.5
 PCM
 }
 
-=======
->>>>>>> master
 PMENU
