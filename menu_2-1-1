@@ -1,5 +1,7 @@
 #!/bin/bash
 
+<<<<<<< HEAD
+=======
 # Define o tamanho maximo e minimo de HD Virtual: (em GB)
 MAX_HD=50	# Apenas números
 MIN_HD=1		# Apenas números
@@ -17,6 +19,7 @@ cpu=999999
 tamanho=999999
 memoria=999999
 
+>>>>>>> master
 PCM(){ PROMPT ;clear; PMENU;}
 PVM(){ PROMPTVM ;clear; PVM;}
 
@@ -37,17 +40,6 @@ PMENU()
 #GERACOR;
 COLS;
 }
-
-# bold() { echo -e "\e[1m$@\e[0m" ; }
-# red() { echo -e "\e[31m$@\e[0m" ; }
-# green() { echo -e "\e[32m$@\e[0m" ; }
-# yellow() { echo -e "\e[33m$@\e[0m" ; }
-
-# die() { red "ERR: $@" >&2 ; exit 2 ; }
-# silent() { "$@" > /dev/null 2>&1 ; }
-# output() { echo -e "- $@" ; }
-# outputn() { echo -en "- $@ ... " ; }
-# ok() { green "${@:-OK}" ; }
 
 MENU() {
 	tput clear
@@ -113,13 +105,17 @@ INICIAR() {
 	tput clear 
 	virsh list --all
 
+<<<<<<< HEAD
+	read -p "Nome da vm que deseja iniciar:" IN_NAME
+	
+	if virsh list --all | grep '$IN_NAME' 
+=======
 	read -p "Nome da vm que deseja iniciar:" in_name
 	
 	if virsh list --all | grep '$in_name' 
+>>>>>>> master
 	then
-		virsh start $in_name \
-		&& ok \
-		|| die "Não foi possivel startar a maquina virtual"
+		virsh start $IN_NAME
 	fi
 PCM
 }
@@ -128,9 +124,15 @@ PAUSAR() {
 	tput clear
 		virsh list --all
 
+<<<<<<< HEAD
+		read -p "Nome da vm que deseja pausar/desligar: " ST_NAME
+		virsh shutdown $ST_NAME
+		PCM
+=======
 		read -p "Nome da vm que deseja pausar/desligar: " st_name
 		virsh shutdown $st_name
 	PCM
+>>>>>>> master
 }
 
 DELETAR() {
@@ -140,29 +142,307 @@ PCM
 
 VM() {
 	tput clear
-	printf "${CE}\e[2;${POS2}f----------------------------------------"
-	printf "\e[3;${POS1}f-------------- MENU IMPORTAÇÃO --------------"
+	printf "${CE}\e[2;${POS2}f-----------------------------------------"
+	printf "\e[3;${POS1}f-------------- MENU IMPORTAÇÃO -----------"
 	printf "\e[4;${POS}f---\e[4;${POS3}f---"
-	printf "\e[4;${POS}f---${CSM}    [1] Debian 7        [2] Debian 9  ${CE}---"
-	printf "\e[5;${POS}f---${CSM}    [3] Win.Server 2008 [4] Win 2007  ${CE}---"
-	printf "\e[6;${POS}f---${CSM}    [5] Win.Server 2012 [6] Win 2010  ${CE}---"
-	printf "\e[7;${POS}f---${CSM}    [7] Kali            [8] Debian 8  ${CE}---"
-	printf "\e[8;${POS}f---${CSM}              [9] Cancelar            ${CE}---"
-	printf "\e[9;${POS}f---\e[10;${POS3}f---"
+	printf "\e[5;${POS}f---${CSM}    [1] Debian          [2] Windowns  ${CE}---"
+	printf "\e[6;${POS}f---${CSM}    [3] Kali            [9] Cancelar  ${CE}---"
+	#printf "\e[6;${POS}f---${CSM}    [5] Win.Server 2012 [6] Win 2010  ${CE}---"
+	#printf "\e[7;${POS}f---${CSM}    [7] Kali            [8] Debian 8  ${CE}---"
+	#printf "\e[7;${POS}f---${CSM}              [9] Cancelar            ${CE}---"
+	printf "\e[7;${POS}f---\e[7;${POS3}f---"
+
+	printf "${CE}\e[9;${POS1}f------------------------------------------"
+	printf "\e[10;${POS2}f----------------------------------------\n\n"$FC""
+	read -p " OPÇãO: " -n1 OPCVM
+
+	case "$OPCVM" in
+	1) VMDEBIAN;;
+	2) VMWIN;;
+	3) Kali;;
+	9) echo -e "\n\n Cancelando...\n";sleep 0.5; exit ;;
+	*) MSGM ; PVM ;;
+	esac
+}
+
+KALI(){
+	tput clear
+
+# Definição do virt-install debian 7.
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=wheezy
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+	fi
+done
+}
+
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+VMDEBIAN() {
+	tput clear
+	printf "${CE}\e[2;${POS2}f----------------------------------------"
+	printf "\e[3;${POS1}f---------------- MENU DEBIAN ----------------"
+	printf "\e[4;${POS}f---\e[4;${POS3}f---"
+	printf "\e[4;${POS}f---${CSM}    [1] Debian 7        [2] Debian 8  ${CE}---"
+	printf "\e[5;${POS}f---${CSM}    [3] Debian 9        [9] Cancelar  ${CE}---"
+	#printf "\e[6;${POS}f---${CSM}    [5] Win.Server 2012 [6] Win 2010  ${CE}---"
+	#printf "\e[7;${POS}f---${CSM}    [7] Kali            [8] Debian 8  ${CE}---"
+	printf "\e[6;${POS}f---${CSM}              [9] Cancelar            ${CE}---"
+	printf "\e[7;${POS}f---\e[7;${POS3}f---"
+
+	printf "${CE}\e[8;${POS1}f------------------------------------------"
+	printf "\e[8;${POS2}f----------------------------------------\n\n"$FC""
+	read -p " OPÇãO: " -n1 OPCVM
+
+	case "$OPCVM" in
+	1) DEBIAN7;;
+	2) DEBIAN8;;
+	3) DEBIAN9;;
+	9) echo -e "\n\n Cancelando...\n";sleep 0.5; exit ;;
+	*) MSGM ; PVM ;;
+	esac
+}
+
+DEBIAN7(){
+	tput clear
+
+# Definição do virt-install debian 7.
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=wheezy
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+	fi
+done
+}
+
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+DEBIAN8(){
+	tput clear
+
+# Definição do virt-install debian 7.
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+	fi
+done
+}
+
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+DEBIAN9(){
+	tput clear
+
+# Definição do virt-install debian 7.
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+	fi
+done
+}
+
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+# Configuração das VM winsdows.
+
+VMWIN() {
+	tput clear
+	printf "${CE}\e[2;${POS2}f----------------------------------------------"
+	printf "\e[3;${POS1}f------------------ MENU WINDOWS -------------------"
+	printf "\e[4;${POS}f---\e[4;${POS3}f---"
+	printf "\e[5;${POS}f---${CSM}    [1] Win XP          [2] Win 2007        ${CE}---"
+	printf "\e[6;${POS}f---${CSM}    [3] Win 2008        [4] Win 2010        ${CE}---"
+	printf "\e[7;${POS}f---${CSM}    [5] Win.Server 2008 [6] Win.Server 2012 ${CE}---"
+	#printf "\e[7;${POS}f---${CSM}    [7] Kali            [8] Debian 8  ${CE}---"
+	printf "\e[8;${POS}f---${CSM}              [9] Cancelar                  ${CE}---"
+	printf "\e[9;${POS}f---\e[9;${POS3}f---"
 
 	printf "${CE}\e[10;${POS1}f------------------------------------------"
 	printf "\e[11;${POS2}f----------------------------------------\n\n"$FC""
 	read -p " OPÇãO: " -n1 OPCVM
 
 	case "$OPCVM" in
-	1) Debian7 ;;
-	2) Debian9 ;;
-	3) WinServer08 ;;
-	4) Win07 ;;
-	5) WinServer12 ;;
-	6) Win10 ;;
-	7) Kali ;;
-	8) Debian8;;
+	1) WINXP;;
+	2) WIN7;;
+	3) WIN8;;
+	4) WIN10;;
+	5) WINSERVER08;;
+	6) WINSERVER12;;
 	9) echo -e "\n\n Cancelando...\n";sleep 0.5; exit ;;
 	*) MSGM ; PVM ;;
 	esac
@@ -170,15 +450,97 @@ VM() {
 
 MSGC() { echo -e "$CVA\n\n \" OPÇÃO INVÁLIDA! \" $FC" ; sleep 0.25 ; }
 
-Debian7(){
+WINXP(){
 	tput clear
 
+<<<<<<< HEAD
+# Definição do virt-install
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=wheezy
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+	fi
+done
+}
+
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+=======
 format=qcow2
 
 	read -p "Nome da maquina virtual:" name
+>>>>>>> master
 
-# 	CI_ISO=$NAME-cidata.iso
+# Quantidade de CPU
+READ 1 2 CPU
 
+<<<<<<< HEAD
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+WIN7(){
+	tput clear
+
+# Definição do virt-install
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=wheezy
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+=======
 # solicita tamanho do disco virtual.
 
 # tamanho=999999
@@ -187,9 +549,66 @@ while [ $tamanho -lt $MIN_HD -o $tamanho -ge $MAX_HD ]; do
 	read -p "Tamanho do disco: ($MIN_HD ~ $MAX_HD GB)" tamanho
 	if [ $tamanho -lt $MIN_HD -o $tamanho -ge $MAX_HD ]; then
 		echo -e "Tamanho inválido! ($MIN_HD ~ $MAX_HD GB)"
+>>>>>>> master
 	fi
 done
+}
 
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+<<<<<<< HEAD
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+WIN8(){
+	tput clear
+
+# Definição do virt-install
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=wheezy
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+=======
 # Solicita tamanho da ram.
 
 # memoria=999999
@@ -198,9 +617,67 @@ while [ $memoria -lt $MIN_RAM -o $memoria -ge $MAX_RAM ]; do
 	read -p "Tamanho da maquina virtual ($MIN_RAM ~ $MAX_RAM B):" memoria
 	if [ $memoria -gt $MIN_RAM -o $memoria -le $MAX_RAM ]; then
 		echo -e "Tamanho inválido! ($MIN_RAM ~ $MAX_RAM B)"
+>>>>>>> master
 	fi
 done
+}
 
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+<<<<<<< HEAD
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+
+WIN10(){
+	tput clear
+
+# Definição do virt-install
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=wheezy
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+=======
 # Solicitar quantidade de CPU.
 
 # cpu=99999999
@@ -209,9 +686,35 @@ while [ $cpu -le $MIN_CUP -o $cpu -ge $MAX_CUP ]; do
 	read -p "Quantidade de Cpu ():" CPU
 	if [ $cpu -lt $MIN_CUP -o $cpu -ge $MAX_CPU ]; then
 		echo -e "Tamanho inválido! ($MIN_CUP ~ $MAX_CPU)"
+>>>>>>> master
 	fi
 done
+}
 
+<<<<<<< HEAD
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+=======
 #Criando disco da maquina.
 
 create_img=$name.$format
@@ -223,8 +726,127 @@ disk=$create_img
 #	NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 virt-install --import --name $name --memory $memory --vcpus $vcpus --cpu host --disk $disk,format=$format,bus=virtio --disk ,device=cdrom --network $NETWORK_PARAMS --os-type=$type --os-variant=$variant --graphics spice,port=$port,listen=$listen --noautoconsole 
+>>>>>>> master
 
+sleep 0.5
 PCM
 }
 
+<<<<<<< HEAD
+WINSERVER08(){
+	tput clear
+
+# Definição do virt-install
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=wheezy
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+	fi
+done
+}
+
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+WINSERVER12(){
+	tput clear
+
+# Definição do virt-install
+
+TIPO=
+FORMATO=qcow2
+VARIANTE=wheezy
+PORTA=
+LISTEN=
+IMG_DISK=
+#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+
+# Inicio da configuração do usuario da maquina virtual.
+
+	read -p "Nome da maquina virtual:" NAME
+
+READ() {
+while :;do 
+read -p " Informe o TAMANHO d(o|a) $3 ($1 ~ $2): "
+	if (($REPLY>=$1 && $REPLY<=$2));then 
+	echo -e " $3 OKAY ($1 ~ $2 GB)\n"
+	eval $3=$REPLY;	break
+	else
+	echo -e " Tamanho D(o|a) $3 inválido\n Minimo:$1\n Máximo:$2"; continue ;
+	fi
+done
+}
+
+# TAMANHO do disco virtual.
+READ 1 50 DISCO
+
+# TAMANHO da ram.
+READ 1 3 MEMORIA
+
+# Quantidade de CPU
+READ 1 2 CPU
+
+tput clear
+
+echo -e "\n Os valores definidos são:\n DISCO:$DISCO\n MEMÓRIA:$MEMORIA\n CPU:$CPU\n"
+
+#Criando disco da maquina.
+
+CREATE_IMG=$NAME.$FORMATO
+qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
+DISCO_CRIADO=$CREATE_IMG
+
+# Comando Virt-install para instalar uma nova maquina virtual.
+
+virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+
+sleep 0.5
+PCM
+}
+
+=======
+>>>>>>> master
 PMENU
