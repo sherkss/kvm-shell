@@ -17,7 +17,6 @@ local PRMPT ;
 
 PMENU() 
 {
-#GERACOR;
 COLS;
 }
 
@@ -58,20 +57,6 @@ COLS() {
 	(($COLS>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PCM ; }
 }
 
-# COLSVM() {
-# 	COLSVM=$(tput cols)
-# 	POSVM=$(((COLSVM-44)/2+1))
-# 	POSVM1=$((POSVM+1))
-# 	POSVM2=$((POSVM+2))
-# 	POSVM3=$((POSVM2+39))
-# 	(($COLSVM>=44)) && MENU || { echo -e "$CVA AJUSTE A TELA!\n No MÍNIMO 44 Colunas $FC" ; PVM ; }
-# }
-
-# GERACOR() {
-# 	local cnt=$((1+RANDOM%31));local atb=$((RANDOM%2));
-# 	CSM="\e["$atb";38;5;"$cnt"m"
-# }
-
 MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 
 LISTAR() {
@@ -104,7 +89,8 @@ PAUSAR() {
 }
 
 DELETAR() {
-
+	echo -e "ainda não configurado"
+	sleep 0.5;
 PCM
 }
 
@@ -588,7 +574,6 @@ virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --d
 sleep 0.5
 PCM
 }
-
 
 WIN10(){
 	tput clear
