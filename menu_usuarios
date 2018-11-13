@@ -21,10 +21,10 @@ MENU() {
 	printf "\e[5;${POS}f---${CSM}    [1] Cadastrar       [2] Listar    ${CE}---"
 	printf "\e[6;${POS}f---${CSM}    [3] Remover         [4] Alterar   ${CE}---"
 #	printf "\e[7;${POS}f---${CSM}    [5] Opção 5         [6] Opção 6   ${CE}---"
-	printf "\e[8;${POS}f---${CSM}               [8] Exit               ${CE}---"
-	printf "\e[9;${POS}f---\e[9;${POS3}f---"
-	printf "${CE}\e[10;${POS1}f------------------------------------------"
-	printf "\e[11;${POS2}f----------------------------------------\n\n"$FC""
+	printf "\e[7;${POS}f---${CSM}               [8] Exit               ${CE}---"
+	printf "\e[8;${POS}f---\e[8;${POS3}f---"
+	printf "${CE}\e[9;${POS1}f------------------------------------------"
+	printf "\e[10;${POS2}f----------------------------------------\n\n"$FC""
 	read -p " OPÇãO: " -n1 OPC
 
 	case "$OPC" in
