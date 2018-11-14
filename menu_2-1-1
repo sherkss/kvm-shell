@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Pasta definida na configuração.
+
+DIRETORIO=
+
+#
+
 PCM(){ PROMPT ;clear; PMENU;}
 PVM(){ PROMPTVM ;clear; PVM;}
 
@@ -89,7 +95,12 @@ PAUSAR() {
 }
 
 DELETAR() {
-	echo -e "ainda não configurado"
+	tput clear
+	
+	read -p "Nome da vm que deseja deletar: " DEL_NAME
+	
+	virsh destroy $DEL_NAME
+
 	sleep 0.5;
 PCM
 }

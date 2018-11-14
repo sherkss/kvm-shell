@@ -28,10 +28,10 @@ MENU() {
 	read -p " OPÇãO: " -n1 OPC
 
 	case "$OPC" in
-	1) FUNCAO_01 ;;
-	2) FUNCAO_02 ;;
-	3) FUNCAO_03 ;;
-	4) FUNCAO_04 ;;
+	1) ADICIONAR ;;
+	2) LISTAR ;;
+	3) DELETAR ;;
+	4) SENHA ;;
 	8) echo -e "\n\n Saindo...\n";sleep 0.5; exit ;;
 	*) MSGM ; PMENU ;;
 	esac
@@ -54,7 +54,7 @@ GERACOR() {
 
 MSGM() { echo -e "$CVA\n\n \" OPÇãO INVáLIDA! \" $FC" ; sleep 1 ; }
 
-FUNCAO_01() {
+ADICIONAR() {
 	tput clear;
 
 	read -p "Nome do novo usúario:" addusuario
@@ -76,7 +76,7 @@ FUNCAO_01() {
 
 }
 
-FUNCAO_02() {
+LISTAR() {
 	tput clear ;
 
 	echo "Lista de usuarios:" ;
@@ -90,7 +90,7 @@ FUNCAO_02() {
 	PCM
 }
 
-FUNCAO_03() {
+DELETAR() {
 	tput clear ;
 
 	echo "Deletar usuário: " ;
@@ -110,7 +110,7 @@ FUNCAO_03() {
 	sleep 0.5
 	PCM
 }
-FUNCAO_04() {
+SENHA() {
 	tput clear ;
 
 #	echo "Nome do usuario:"
