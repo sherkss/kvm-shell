@@ -21,7 +21,7 @@ MENU() {
 	printf "\e[5;${POS}f---${CSM}    [1] Cadastrar       [2] Listar    ${CE}---"
 	printf "\e[6;${POS}f---${CSM}    [3] Remover         [4] Alterar   ${CE}---"
 #	printf "\e[7;${POS}f---${CSM}    [5] Opção 5         [6] Opção 6   ${CE}---"
-	printf "\e[7;${POS}f---${CSM}               [8] Exit               ${CE}---"
+	printf "\e[7;${POS}f---${CSM}               [9] Exit               ${CE}---"
 	printf "\e[8;${POS}f---\e[8;${POS3}f---"
 	printf "${CE}\e[9;${POS1}f------------------------------------------"
 	printf "\e[10;${POS2}f----------------------------------------\n\n"$FC""
@@ -32,7 +32,7 @@ MENU() {
 	2) LISTAR ;;
 	3) DELETAR ;;
 	4) SENHA ;;
-	8) echo -e "\n\n Saindo...\n";sleep 0.5; exit ;;
+	9) echo -e "\n\n Saindo...\n";sleep 0.5; exit ;;
 	*) MSGM ; PMENU ;;
 	esac
 }
@@ -64,13 +64,16 @@ ADICIONAR() {
 		then
 		useradd $addusuario
 		
-		if [ $? != "1"]
+		if [ $? != "1" ];
+		then
 		passwd $addusuario
 		usermod --shell /bin/bash $addusuario
+		
 		adduser $addusuario libvirt-qemu
 		adduser $addusuario libvirt
+		fi
 	fi
-	
+
 	sleep 0.5	
 	PCM
 
@@ -93,10 +96,7 @@ LISTAR() {
 DELETAR() {
 	tput clear ;
 
-	echo "Deletar usuário: " ;
 	read -p "Nome do usúario que deseja deletar:" delusuario
-
-#	read delusuario;
 	
 	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep "${delusuario}" ;
 
@@ -113,7 +113,6 @@ DELETAR() {
 SENHA() {
 	tput clear ;
 
-#	echo "Nome do usuario:"
 	read -p "Nome do usúario que deseja mudar a senha:" senha_usuario
 	
 	cat /etc/passwd | tr ':' '\t' |cut -f1 |grep "${senha_usuario}" ;

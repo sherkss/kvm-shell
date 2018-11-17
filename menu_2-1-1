@@ -2,9 +2,24 @@
 
 # Pasta definida na configuração.
 
-DIRETORIO=
+DIRETORIO=/var/lib/libvirt/images
 
-#
+# Nome das imagens
+
+KALI_IMG=
+DEBIAN7_IMG=
+DEBIAN8_IMG=debian-8.0.0-openstack-amd64.qcow2 #https://cdimage.debian.org/cdimage/openstack/archive/8.0.0/
+DEBIAN9_IMG=debian-9-openstack-amd64.qcow2 #https://cdimage.debian.org/cdimage/openstack/archive/9.0.0-20170617/
+WINXP_IMG=
+WIN7_IMG=
+WIN8_IMG=
+WIN10_IMG=
+WINSERVER08_IMG=
+WINSERVER12_IMG=
+
+# Tipos da VMS
+TIPO_LINUX=linux
+TIPO_WINDOWS=windows
 
 PCM(){ PROMPT ;clear; PMENU;}
 PVM(){ PROMPTVM ;clear; PVM;}
@@ -33,12 +48,12 @@ MENU() {
 	printf "\e[4;${POS}f---\e[4;${POS3}f---"
 	printf "\e[5;${POS}f---${CSM}    [1] Criar           [2] Listar    ${CE}---"
 	printf "\e[6;${POS}f---${CSM}    [3] Iniciar         [4] Deletar   ${CE}---"
-	printf "\e[7;${POS}f---${CSM}    [5] Pausar          [6] Opção 6   ${CE}---"
-	printf "\e[8;${POS}f---${CSM}    [7] Help            [8] Exit      ${CE}---"
-	printf "\e[9;${POS}f---\e[9;${POS3}f---"
+	printf "\e[7;${POS}f---${CSM}    [5] Pausar          [9] Exit   ${CE}---"
+	#printf "\e[8;${POS}f---${CSM}    [7] Help            [8]       ${CE}---"
+	printf "\e[8;${POS}f---\e[9;${POS3}f---"
 
-	printf "${CE}\e[10;${POS1}f------------------------------------------"
-	printf "\e[11;${POS2}f----------------------------------------\n\n"$FC""
+	printf "${CE}\e[9;${POS1}f------------------------------------------"
+	printf "\e[10;${POS2}f----------------------------------------\n\n"$FC""
 	read -p " OPÇãO: " -n1 OPC
 
 	case "$OPC" in
@@ -46,10 +61,8 @@ MENU() {
 	2) LISTAR ;;
 	3) INICIAR ;;
 	4) DELETAR ;;
-	5) echo -e "\n Criar FUNÇãO_05\n"; PCM ;;
-	6) echo -e "\n Criar FUNÇãO_06\n"; PCM ;;
-	7) echo -e "\n${CE} Centraliza e altera a cor do MENU${FC}"; sleep 1 ; PMENU ;;
-	8) echo -e "\n\n Saindo...\n";sleep 0.5; exit ;;
+	5) PAUSAR ;;
+	9) echo -e "\n\n Saindo...\n";sleep 0.5; exit ;;
 	*) MSGM ; PMENU ;;
 	esac
 }
@@ -122,9 +135,9 @@ VM() {
 	read -p " OPÇãO: " -n1 OPCVM
 
 	case "$OPCVM" in
-	1) VMDEBIAN;;
-	2) VMWIN;;
-	3) Kali;;
+	1) VMDEBIAN ;;
+	2) VMWIN ;;
+	3) KALI ;;
 	9) echo -e "\n\n Cancelando...\n";sleep 0.5; exit ;;
 	*) MSGM ; PVM ;;
 	esac
@@ -135,12 +148,12 @@ KALI(){
 
 # Definição do virt-install debian 7.
 
-TIPO=
+TIPO=$TIPO_LINUX
 FORMATO=qcow2
 VARIANTE=wheezy
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$KALI_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -217,12 +230,12 @@ DEBIAN7(){
 
 # Definição do virt-install debian 7.
 
-TIPO=
+TIPO=$TIPO_LINUX
 FORMATO=qcow2
 VARIANTE=wheezy
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$DEBIAN7_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -274,12 +287,12 @@ DEBIAN8(){
 
 # Definição do virt-install debian 7.
 
-TIPO=
+TIPO=$TIPO_LINUX
 FORMATO=qcow2
 VARIANTE=
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$DEBIAN8_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -331,12 +344,12 @@ DEBIAN9(){
 
 # Definição do virt-install debian 7.
 
-TIPO=
+TIPO=$TIPO_LINUX
 FORMATO=qcow2
 VARIANTE=
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$DEBIAN9_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -420,12 +433,12 @@ WINXP(){
 
 # Definição do virt-install
 
-TIPO=
+TIPO=$TIPO_WINDOWS
 FORMATO=qcow2
 VARIANTE=wheezy
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$WINXP_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -477,12 +490,12 @@ WIN7(){
 
 # Definição do virt-install
 
-TIPO=
+TIPO=$TIPO_WINDOWS
 FORMATO=qcow2
 VARIANTE=wheezy
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$WIN7_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -534,12 +547,12 @@ WIN8(){
 
 # Definição do virt-install
 
-TIPO=
+TIPO=$TIPO_WINDOWS
 FORMATO=qcow2
 VARIANTE=wheezy
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$WIN8_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -591,12 +604,12 @@ WIN10(){
 
 # Definição do virt-install
 
-TIPO=
+TIPO=$TIPO_WINDOWS
 FORMATO=qcow2
 VARIANTE=wheezy
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$WIN10_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -648,12 +661,12 @@ WINSERVER08(){
 
 # Definição do virt-install
 
-TIPO=
+TIPO=$TIPO_WINDOWS
 FORMATO=qcow2
 VARIANTE=wheezy
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$WINSERVER08_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
@@ -705,12 +718,12 @@ WINSERVER12(){
 
 # Definição do virt-install
 
-TIPO=
+TIPO=$TIPO_WINDOWS
 FORMATO=qcow2
-VARIANTE=wheezy
+VARIANTE=
 PORTA=
 LISTEN=
-IMG_DISK=
+IMG_DISK=$DIRETORIO/$WINSERVER12_IMG
 #MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
 #NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 

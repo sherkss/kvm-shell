@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuração de Intalçao da pasta de arquivos.
-USUARIO=
-GRUPO=
+USUARIO=root
+GRUPO=libvirt-qemu
 
 # Pacotes a ser instalados
 
@@ -11,7 +11,7 @@ sudo apt-get install openssh-server
 
 # Diretorio onde ficara os arquivos bases da maquinas virtuais
 
-DIRETORIO=
+DIRETORIO=/var/lib/images
 
 # Verificar se o diretorio ja existe.
 
@@ -43,7 +43,4 @@ iface br0 inet static
 #allow autoconf for ipv6
 iface br0 inet6 auto
         accept_ra 1
-" >> 
-# 
-
-# 
+" >> /etc/network/interfaces
