@@ -71,6 +71,7 @@ ADICIONAR() {
 		
 		adduser $addusuario libvirt-qemu
 		adduser $addusuario libvirt
+		adduser $addusuario kvm
 		fi
 	fi
 

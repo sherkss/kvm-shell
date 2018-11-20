@@ -154,8 +154,9 @@ VARIANTE=wheezy
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$KALI_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -192,9 +193,13 @@ CREATE_IMG=$NAME.$FORMATO
 qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
 DISCO_CRIADO=$CREATE_IMG
 
+# Tranformando o tamanho da memoria de GB para MB
+
+MEMORIA_VIRT=$MEMORIA*1024
+
 # Comando Virt-install para instalar uma nova maquina virtual.
 
-virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+virt-install --import --name $NAME --memory $MEMORIA_VIRT --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
 
 sleep 0.5
 PCM
@@ -236,8 +241,9 @@ VARIANTE=wheezy
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$DEBIAN7_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//' >> MACADDRESS
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -274,9 +280,13 @@ CREATE_IMG=$NAME.$FORMATO
 qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
 DISCO_CRIADO=$CREATE_IMG
 
+# Tranformando o tamanho da memoria de GB para MB
+
+MEMORIA_VIRT=$MEMORIA*1024
+
 # Comando Virt-install para instalar uma nova maquina virtual.
 
-virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+virt-install --import --name $NAME --memory $MEMORIA_VIRT --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
 
 sleep 0.5
 PCM
@@ -293,8 +303,9 @@ VARIANTE=
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$DEBIAN8_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -331,9 +342,13 @@ CREATE_IMG=$NAME.$FORMATO
 qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
 DISCO_CRIADO=$CREATE_IMG
 
+# Tranformando o tamanho da memoria de GB para MB
+
+MEMORIA_VIRT=$MEMORIA*1024
+
 # Comando Virt-install para instalar uma nova maquina virtual.
 
-virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+virt-install --import --name $NAME --memory $MEMORIA_VIRT --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
 
 sleep 0.5
 PCM
@@ -350,8 +365,9 @@ VARIANTE=
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$DEBIAN9_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -388,9 +404,13 @@ CREATE_IMG=$NAME.$FORMATO
 qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
 DISCO_CRIADO=$CREATE_IMG
 
+# Tranformando o tamanho da memoria de GB para MB
+
+MEMORIA_VIRT=$MEMORIA*1024
+
 # Comando Virt-install para instalar uma nova maquina virtual.
 
-virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+virt-install --import --name $NAME --memory $MEMORIA_VIRT --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
 
 sleep 0.5
 PCM
@@ -439,8 +459,9 @@ VARIANTE=wheezy
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$WINXP_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -477,9 +498,13 @@ CREATE_IMG=$NAME.$FORMATO
 qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
 DISCO_CRIADO=$CREATE_IMG
 
+# Tranformando o tamanho da memoria de GB para MB
+
+MEMORIA_VIRT=$MEMORIA*1024
+
 # Comando Virt-install para instalar uma nova maquina virtual.
 
-virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+virt-install --import --name $NAME --memory $MEMORIA_VIRT --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
 
 sleep 0.5
 PCM
@@ -496,8 +521,9 @@ VARIANTE=wheezy
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$WIN7_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -534,9 +560,13 @@ CREATE_IMG=$NAME.$FORMATO
 qemu-img create -f $FORMATO $CREATE_IMG ${DISCO}G
 DISCO_CRIADO=$CREATE_IMG
 
+# Tranformando o tamanho da memoria de GB para MB
+
+MEMORIA_VIRT=$MEMORIA*1024
+
 # Comando Virt-install para instalar uma nova maquina virtual.
 
-virt-install --import --name $NAME --memory $MEMORIA --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
+virt-install --import --name $NAME --memory $MEMORIA_VIRT --vcpus $CPU --cpu host --disk $DISCO_CRIADO,format=$FORMATO,bus=virtio --disk $IMG_DISK,device=cdrom --network $NETWORK_PARAMS --os-type=$TIPO --os-variant=$VARIANTE --graphics spice,port=$PORTA,listen=$LISTEN --noautoconsole 
 
 sleep 0.5
 PCM
@@ -553,8 +583,9 @@ VARIANTE=wheezy
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$WIN8_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -610,8 +641,9 @@ VARIANTE=wheezy
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$WIN10_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -667,8 +699,9 @@ VARIANTE=wheezy
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$WINSERVER08_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -724,8 +757,9 @@ VARIANTE=
 PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$WINSERVER12_IMG
-#MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
-#NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=virbr0
+MACADDRESS=openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//'
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
