@@ -4,12 +4,12 @@
 
 DIRETORIO=/var/lib/libvirt/images
 
-# Nome das imagens
+# Nome das imagens (.iso)
 
-KALI_IMG=
-DEBIAN7_IMG=
-DEBIAN8_IMG=debian-8.0.0-openstack-amd64.qcow2 #https://cdimage.debian.org/cdimage/openstack/archive/8.0.0/
-DEBIAN9_IMG=debian-9-openstack-amd64.qcow2 #https://cdimage.debian.org/cdimage/openstack/archive/9.0.0-20170617/
+KALI_IMG=kali-linux-2018.2-amd64.iso
+DEBIAN7_IMG=debian-7.1.0-amd64-DVD-1.iso
+DEBIAN8_IMG=debian-8.0.0-openstack-amd64.iso #https://cdimage.debian.org/cdimage/openstack/archive/8.0.0/
+DEBIAN9_IMG=debian-9-openstack-amd64.iso #https://cdimage.debian.org/cdimage/openstack/archive/9.0.0-20170617/
 WINXP_IMG=
 WIN7_IMG=
 WIN8_IMG=
@@ -17,7 +17,7 @@ WIN10_IMG=
 WINSERVER08_IMG=
 WINSERVER12_IMG=
 
-# Tipos da VMS
+# Tipos da VMS 
 TIPO_LINUX=linux
 TIPO_WINDOWS=windows
 
@@ -48,9 +48,9 @@ MENU() {
 	printf "\e[4;${POS}f---\e[4;${POS3}f---"
 	printf "\e[5;${POS}f---${CSM}    [1] Criar           [2] Listar    ${CE}---"
 	printf "\e[6;${POS}f---${CSM}    [3] Iniciar         [4] Deletar   ${CE}---"
-	printf "\e[7;${POS}f---${CSM}    [5] Pausar          [9] Exit   ${CE}---"
+	printf "\e[7;${POS}f---${CSM}    [5] Pausar          [9] Exit      ${CE}---"
 	#printf "\e[8;${POS}f---${CSM}    [7] Help            [8]       ${CE}---"
-	printf "\e[8;${POS}f---\e[9;${POS3}f---"
+	printf "\e[8;${POS}f---\e[8;${POS3}f---"
 
 	printf "${CE}\e[9;${POS1}f------------------------------------------"
 	printf "\e[10;${POS2}f----------------------------------------\n\n"$FC""
@@ -130,8 +130,8 @@ VM() {
 	#printf "\e[7;${POS}f---${CSM}              [9] Cancelar            ${CE}---"
 	printf "\e[7;${POS}f---\e[7;${POS3}f---"
 
-	printf "${CE}\e[9;${POS1}f------------------------------------------"
-	printf "\e[10;${POS2}f----------------------------------------\n\n"$FC""
+	printf "${CE}\e[8;${POS1}f------------------------------------------"
+	printf "\e[9;${POS2}f----------------------------------------\n\n"$FC""
 	read -p " OPÇãO: " -n1 OPCVM
 
 	case "$OPCVM" in
@@ -218,7 +218,7 @@ VMDEBIAN() {
 	printf "\e[7;${POS}f---\e[7;${POS3}f---"
 
 	printf "${CE}\e[8;${POS1}f------------------------------------------"
-	printf "\e[8;${POS2}f----------------------------------------\n\n"$FC""
+	printf "\e[9;${POS2}f----------------------------------------\n\n"$FC""
 	read -p " OPÇãO: " -n1 OPCVM
 
 	case "$OPCVM" in
@@ -242,7 +242,7 @@ PORTA=
 LISTEN=
 IMG_DISK=$DIRETORIO/$DEBIAN7_IMG
 BRIDGE=virbr0
-openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//' >> MACADDRESS
+grep -e 
 NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
 
 # Inicio da configuração do usuario da maquina virtual.
