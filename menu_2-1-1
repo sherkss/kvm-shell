@@ -233,17 +233,22 @@ VMDEBIAN() {
 DEBIAN7(){
 	tput clear
 
+	
 # Definição do virt-install debian 7.
 
 TIPO=$TIPO_LINUX
 FORMATO=qcow2
-VARIANTE=wheezy
-PORTA=
+VARIANTE=debianwheezy
+PORTA=-1
 LISTEN=
 IMG_DISK=$DIRETORIO/$DEBIAN7_IMG
-BRIDGE=virbr0
-grep -e 
-NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MACADDRESS}"
+BRIDGE=bridge
+IFACE=virbr0
+
+read MAC </sys/class/net/$IFACE/address
+
+
+NETWORK_PARAMS="bridge=${BRIDGE},model=virtio,mac=${MAC}"
 
 # Inicio da configuração do usuario da maquina virtual.
 
@@ -282,7 +287,7 @@ DISCO_CRIADO=$CREATE_IMG
 
 # Tranformando o tamanho da memoria de GB para MB
 
-MEMORIA_VIRT=$MEMORIA*1024
+MEMORIA_VIRT=$(($MEMORIA*1024))
 
 # Comando Virt-install para instalar uma nova maquina virtual.
 
